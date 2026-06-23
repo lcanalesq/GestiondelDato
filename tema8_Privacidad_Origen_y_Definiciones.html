@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tema 8 · Expediente: Privacidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: #0c1014;
+  --bg-soft: #11161c;
+  --panel-bg: #151b22;
+  --paper: #f3ead2;
+  --paper-edge: #e4d8b4;
+  --ink: #241f14;
+  --ink-soft: #4a4234;
+  --text: #e7e3d8;
+  --text-dim: #9aa3ad;
+  --text-faint: #5d6670;
+  --red: #b32f2f;
+  --red-glow: rgba(179,47,47,.18);
+  --gold: #c9a13b;
+  --teal: #4d8094;
+  --teal-soft: #2c4a56;
+  --border: #2a323b;
+  --border-soft: #1d242b;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --serif: 'Lora', Georgia, serif;
+  --sans: 'Source Sans 3', 'Segoe UI', sans-serif;
+  --radius: 10px;
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  font-size:16px;
+}
+::selection{background:var(--red); color:#fff;}
+
+button{font-family:inherit; cursor:pointer;}
+:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+a{color:var(--teal); text-decoration:none;}
+
+/* ---------- LAYOUT ---------- */
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:280px;
+  flex-shrink:0;
+  background:var(--bg-soft);
+  border-right:1px solid var(--border);
+  padding:22px 16px 16px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  z-index:50;
+}
+
+.sidebar-header{
+  padding:0 6px 18px;
+  border-bottom:1px dashed var(--border);
+  margin-bottom:16px;
+}
+.sb-eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--red);
+  text-transform:uppercase;
+}
+.sb-title{
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:600;
+  margin:4px 0 2px;
+  color:var(--text);
+}
+.sb-sub{
+  font-size:12.5px;
+  color:var(--text-dim);
+}
+.sb-stamp{
+  display:inline-block;
+  margin-top:12px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.14em;
+  color:var(--red);
+  border:1.5px solid var(--red);
+  padding:3px 8px;
+  border-radius:3px;
+  transform:rotate(-3deg);
+  opacity:.85;
+  text-transform:uppercase;
+}
+
+.tabs{display:flex; flex-direction:column; gap:4px; flex:1;}
+.tab-btn{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  text-align:left;
+  background:none;
+  border:1px solid transparent;
+  border-radius:8px;
+  padding:10px 10px;
+  color:var(--text-dim);
+  font-size:14px;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.tab-btn .tnum{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-faint);
+  width:20px;
+  flex-shrink:0;
+}
+.tab-btn svg{width:17px; height:17px; flex-shrink:0; opacity:.8;}
+.tab-btn:hover{background:var(--panel-bg); color:var(--text);}
+.tab-btn.active{
+  background:rgba(179,47,47,.12);
+  border-color:rgba(179,47,47,.35);
+  color:var(--paper);
+}
+.tab-btn.active .tnum{color:var(--red);}
+
+.sidebar-footer{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px dashed var(--border);
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--text-faint);
+  line-height:1.5;
+}
+
+.mobile-bar{
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  background:var(--bg-soft);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  position:sticky;
+  top:0;
+  z-index:60;
+}
+.mobile-bar .sb-title{font-size:18px; margin:0;}
+.menu-btn{
+  background:none;
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  padding:7px 10px;
+}
+
+.content{
+  flex:1;
+  min-width:0;
+  padding:38px 48px 80px;
+  max-width:980px;
+}
+
+.panel{display:none;}
+.panel.active{display:block; animation:fadein .35s ease;}
+@keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+.section-head{margin-bottom:28px;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--red);
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.eyebrow::before{content:''; width:18px; height:1px; background:var(--red); display:inline-block;}
+h2.htitle{
+  font-family:var(--serif);
+  font-size:clamp(26px,3vw,34px);
+  font-weight:600;
+  margin:0 0 10px;
+  color:#fff;
+}
+.lede{color:var(--text-dim); font-size:15.5px; max-width:640px;}
+
+/* ---------- PAPER CARD ---------- */
+.paper-card{
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:6px;
+  padding:22px 24px;
+  box-shadow:var(--shadow);
+  position:relative;
+  border:1px solid var(--paper-edge);
+}
+.paper-card h3, .paper-card h4{color:var(--ink); font-family:var(--serif);}
+.paper-card p{color:var(--ink-soft);}
+
+/* ---------- INTRO ---------- */
+.context-box{
+  border:1px solid var(--border);
+  background:var(--panel-bg);
+  border-radius:8px;
+  padding:18px 20px;
+  margin-bottom:30px;
+  font-size:14.5px;
+  color:var(--text-dim);
+}
+.context-box b{color:var(--text);}
+
+.def-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin:24px 0 36px;
+}
+.def-card{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px 18px;
+  position:relative;
+  overflow:hidden;
+}
+.def-card::before{
+  content:'\201C';
+  font-family:var(--serif);
+  font-size:64px;
+  color:var(--teal-soft);
+  position:absolute;
+  top:-10px; left:8px;
+  opacity:.5;
+}
+.def-quote{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:15px;
+  color:var(--text);
+  margin:18px 0 12px;
+  position:relative;
+  z-index:1;
+}
+.def-meaning{
+  font-size:13.5px;
+  color:var(--teal);
+  font-weight:600;
+  border-top:1px dashed var(--border);
+  padding-top:10px;
+}
+
+.triad-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  margin:32px 0 8px;
+  flex-wrap:wrap;
+}
+.triad-hub{
+  width:118px; height:118px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--red) 0%, #7a1f1f 70%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.06em;
+  color:#fff;
+  text-transform:uppercase;
+  box-shadow:0 0 0 6px rgba(179,47,47,.12), var(--shadow);
+  flex-shrink:0;
+  z-index:2;
+}
+.triad-row{display:flex; flex-direction:column; gap:14px;}
+.triad-item{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 16px;
+  font-size:13.5px;
+  color:var(--text-dim);
+  max-width:230px;
+  position:relative;
+}
+.triad-item b{display:block; color:var(--text); font-size:14px; margin-bottom:2px;}
+.triad-line{width:34px; height:1px; background:var(--border); flex-shrink:0;}
+
+/* ---------- TIMELINE ---------- */
+.timeline{
+  position:relative;
+  margin:30px 0;
+  padding-left:28px;
+  border-left:2px solid var(--border);
+}
+.tl-item{
+  position:relative;
+  padding-bottom:30px;
+}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{
+  position:absolute;
+  left:-35px;
+  top:2px;
+  width:16px; height:16px;
+  border-radius:50%;
+  background:var(--bg);
+  border:2.5px solid var(--gold);
+}
+.tl-year{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:.05em;
+  margin-bottom:4px;
+}
+.tl-card{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 18px;
+}
+.tl-card h4{margin:0 0 6px; font-family:var(--serif); font-size:17px; color:#fff;}
+.tl-card p{margin:0; font-size:14px; color:var(--text-dim);}
+.tl-quote{
+  margin-top:10px;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:13.5px;
+  color:var(--teal);
+  border-left:2px solid var(--teal-soft);
+  padding-left:10px;
+}
+
+/* ---------- PROSSER GRID ---------- */
+.prosser-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin:24px 0;
+}
+.prosser-card{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+}
+.prosser-icon{
+  width:38px; height:38px;
+  border-radius:8px;
+  background:var(--red-glow);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom:12px;
+  color:var(--red);
+}
+.prosser-card h4{margin:0 0 6px; font-family:var(--serif); font-size:17px; color:#fff;}
+.prosser-card p{margin:0; font-size:14px; color:var(--text-dim);}
+.prosser-num{font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+
+.note-box{
+  margin-top:22px;
+  border:1px dashed var(--border);
+  border-radius:8px;
+  padding:14px 18px;
+  font-size:13.5px;
+  color:var(--text-dim);
+  background:rgba(77,128,148,.06);
+}
+.note-box b{color:var(--teal);}
+
+/* ---------- HEX DIAGRAM ---------- */
+.hex-wrap{
+  display:flex;
+  gap:30px;
+  align-items:center;
+  margin:30px 0;
+  flex-wrap:wrap;
+}
+.hex-stage{
+  position:relative;
+  width:380px;
+  height:380px;
+  flex-shrink:0;
+}
+.hex-stage svg{position:absolute; top:0; left:0; width:100%; height:100%;}
+.hex-node{
+  position:absolute;
+  width:96px;
+  transform:translate(-50%,-50%);
+  background:var(--panel-bg);
+  border:1.5px solid var(--border);
+  border-radius:50%;
+  aspect-ratio:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:8px;
+  font-size:11px;
+  color:var(--text-dim);
+  font-weight:600;
+  line-height:1.25;
+  transition:all .15s;
+}
+.hex-node .hn-num{font-family:var(--mono); font-size:10px; color:var(--text-faint); margin-bottom:2px;}
+.hex-node:hover, .hex-node.active{
+  background:var(--red);
+  border-color:var(--red);
+  color:#fff;
+  transform:translate(-50%,-50%) scale(1.08);
+  box-shadow:0 0 0 6px rgba(179,47,47,.15);
+}
+.hex-node.active .hn-num{color:rgba(255,255,255,.7);}
+.hex-center{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:84px; height:84px; border-radius:50%;
+  background:var(--bg-soft);
+  border:1.5px dashed var(--text-faint);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:10.5px; text-align:center; color:var(--text-faint);
+  letter-spacing:.05em;
+}
+.hex-detail{
+  flex:1;
+  min-width:240px;
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:22px;
+  min-height:200px;
+}
+.hex-detail h4{margin:0 0 8px; font-family:var(--serif); font-size:19px; color:#fff;}
+.hex-detail p{margin:0; font-size:14.5px; color:var(--text-dim);}
+.hex-hint{font-size:12.5px; color:var(--text-faint); margin-top:10px; font-style:italic;}
+
+/* ---------- CASE CARDS ---------- */
+.case-grid{display:flex; flex-direction:column; gap:22px; margin:24px 0;}
+.case-card{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:22px 24px;
+  position:relative;
+  overflow:hidden;
+}
+.case-stamp{
+  position:absolute;
+  top:18px; right:22px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.14em;
+  color:var(--red);
+  border:1.5px solid var(--red);
+  padding:3px 9px;
+  border-radius:3px;
+  transform:rotate(6deg);
+  opacity:.8;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+.case-top{display:flex; align-items:baseline; gap:10px; margin-bottom:8px; padding-right:110px;}
+.case-num{font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+.case-year{font-family:var(--mono); font-size:12px; color:var(--gold);}
+.case-card h4{margin:0 0 10px; font-family:var(--serif); font-size:20px; color:#fff;}
+.case-card p{margin:0 0 10px; font-size:14.5px; color:var(--text-dim);}
+.case-lesson{
+  margin-top:12px;
+  border-top:1px dashed var(--border);
+  padding-top:12px;
+  font-size:13.5px;
+  color:var(--teal);
+}
+.case-lesson b{color:var(--teal); font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:4px;}
+.case-stats{display:flex; gap:14px; margin:12px 0; flex-wrap:wrap;}
+.cstat{
+  background:var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 14px;
+  text-align:center;
+}
+.cstat .cval{font-family:var(--mono); font-size:18px; color:var(--red); font-weight:700;}
+.cstat .clab{font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em;}
+
+/* ---------- COMPARATIVA ---------- */
+.compare-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  margin:26px 0;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+.compare-col{padding:24px;}
+.compare-col.left{background:var(--panel-bg); border-right:1px solid var(--border);}
+.compare-col.right{background:#161c14;}
+.compare-col h3{
+  font-family:var(--serif);
+  font-size:20px;
+  margin:0 0 14px;
+  color:#fff;
+  display:flex; align-items:center; gap:8px;
+}
+.compare-row{margin-bottom:14px;}
+.compare-row .clabel{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:3px;}
+.compare-row .cval2{font-size:14px; color:var(--text-dim);}
+.compare-col.left .cval2, .compare-col.right .cval2{color:var(--text);}
+
+.key-diff{
+  margin:0 0 0;
+  background:rgba(201,161,59,.08);
+  border:1px solid rgba(201,161,59,.35);
+  border-radius:8px;
+  padding:16px 20px;
+  font-size:14.5px;
+  color:var(--text);
+}
+.key-diff b{color:var(--gold);}
+
+/* ---------- FLASHCARDS ---------- */
+.fc-wrap{max-width:560px; margin:20px auto 0;}
+.fc-counter{text-align:center; font-family:var(--mono); font-size:12.5px; color:var(--text-faint); margin-bottom:14px;}
+.fc-scene{perspective:1400px; height:280px;}
+.fc-card{
+  position:relative;
+  width:100%; height:100%;
+  cursor:pointer;
+  transform-style:preserve-3d;
+  transition:transform .5s;
+}
+.fc-card.flipped{transform:rotateY(180deg);}
+.fc-face{
+  position:absolute; inset:0;
+  backface-visibility:hidden;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+}
+.fc-front{background:var(--panel-bg);}
+.fc-front .fc-text{font-family:var(--serif); font-size:19px; color:#fff;}
+.fc-back{background:var(--paper); color:var(--ink); transform:rotateY(180deg);}
+.fc-back .fc-text{font-size:15.5px; color:var(--ink-soft); line-height:1.55;}
+.fc-tag{
+  position:absolute; top:14px; left:18px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-faint);
+}
+.fc-back .fc-tag{color:var(--ink-soft); opacity:.6;}
+.fc-flip-hint{position:absolute; bottom:12px; right:16px; font-size:11px; color:var(--text-faint); font-family:var(--mono);}
+.fc-back .fc-flip-hint{color:var(--ink-soft); opacity:.5;}
+
+.fc-controls{display:flex; align-items:center; justify-content:center; gap:14px; margin-top:20px;}
+.fc-btn{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:10px 18px;
+  border-radius:8px;
+  font-size:14px;
+  display:flex; align-items:center; gap:6px;
+}
+.fc-btn:hover{border-color:var(--teal);}
+.fc-shuffle{font-family:var(--mono); font-size:12px;}
+.fc-hint-row{text-align:center; margin-top:12px; font-size:12px; color:var(--text-faint);}
+
+/* ---------- QUIZ (rondas de 10, evaluación conjunta) ---------- */
+.quiz-wrap{max-width:680px; margin:10px auto 0;}
+
+.qz-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:24px;
+}
+.qz-info{font-family:var(--mono); font-size:11.5px; color:var(--text-faint); white-space:nowrap;}
+.qz-bar{flex:1; height:6px; background:var(--border); border-radius:4px; overflow:hidden;}
+.qz-fill{height:100%; background:var(--red); transition:width .3s;}
+
+.qz-card{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px 24px;
+  margin-bottom:16px;
+}
+.qz-num{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;}
+.qz-txt{font-family:var(--serif); font-size:18px; color:#fff; margin:0 0 16px; line-height:1.4;}
+.qz-opts{display:flex; flex-direction:column; gap:9px;}
+.qz-opt{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:11px 14px;
+  cursor:pointer;
+  font-size:14.5px;
+  color:var(--text);
+  transition:border-color .15s, background .15s;
+}
+.qz-opt:hover{border-color:var(--teal);}
+.qz-opt.sel{border-color:var(--teal); background:rgba(77,128,148,.16);}
+.qz-opt.ok{border-color:#4f8a55; background:rgba(79,138,85,.18); cursor:default;}
+.qz-opt.bad{border-color:var(--red); background:rgba(179,47,47,.16); cursor:default;}
+.qz-opt.show{border-color:#4f8a55; background:rgba(79,138,85,.08); cursor:default;}
+.opt-l{
+  font-family:var(--mono); font-size:11px; color:var(--text-faint);
+  width:21px; height:21px; border-radius:50%;
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.qz-opt.sel .opt-l{border-color:var(--teal); color:var(--teal);}
+.qz-opt.ok .opt-l{border-color:#4f8a55; color:#4f8a55;}
+.qz-opt.bad .opt-l{border-color:var(--red); color:var(--red);}
+.opt-t{flex:1;}
+
+.qz-acts{display:flex; gap:12px; justify-content:center; margin:24px 0 8px; flex-wrap:wrap;}
+.btn-p{
+  background:var(--red); border:none; color:#fff;
+  padding:12px 26px; border-radius:8px; font-size:14.5px; font-weight:600;
+}
+.btn-s{
+  background:var(--panel-bg); border:1px solid var(--border); color:var(--text);
+  padding:12px 22px; border-radius:8px; font-size:14.5px;
+}
+.btn-s:hover{border-color:var(--teal);}
+
+.qz-result{text-align:center; padding:4px 10px 28px;}
+.res-score{font-family:var(--serif); font-size:42px; color:#fff; margin:0 0 4px;}
+.res-lbl{font-family:var(--mono); font-size:12.5px; color:var(--gold); margin-bottom:10px; text-transform:uppercase; letter-spacing:.05em;}
+.res-msg{color:var(--text-dim); font-size:14.5px;}
+
+.qr-stamp{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  color:var(--gold);
+  border:2px solid var(--gold);
+  padding:5px 13px;
+  border-radius:4px;
+  transform:rotate(-3deg);
+  margin-bottom:16px;
+  text-transform:uppercase;
+}
+
+.fb-item{
+  background:var(--panel-bg);
+  border:1px solid var(--border);
+  border-left:3px solid var(--border);
+  border-radius:8px;
+  padding:14px 18px;
+  margin-bottom:10px;
+  text-align:left;
+}
+.fb-item.fb-ok{border-left-color:#4f8a55;}
+.fb-item.fb-bad{border-left-color:var(--red);}
+.fb-q{font-size:14.5px; color:#fff; margin-bottom:6px; font-weight:600;}
+.fb-c{font-size:13.5px; color:#86c98c;}
+.fb-w{font-size:13.5px; color:#e09a9a; margin-bottom:3px;}
+.fb-corr{font-size:13.5px; color:#86c98c;}
+.fb-exp{font-size:13px; color:var(--text-dim); margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 900px){
+  .def-grid{grid-template-columns:1fr;}
+  .prosser-grid{grid-template-columns:1fr;}
+  .compare-wrap{grid-template-columns:1fr;}
+  .compare-col.left{border-right:none; border-bottom:1px solid var(--border);}
+  .hex-wrap{justify-content:center;}
+}
+
+@media (max-width: 760px){
+  .sidebar{
+    position:fixed;
+    left:0; top:0;
+    height:100vh;
+    transform:translateX(-100%);
+    transition:transform .25s ease;
+    box-shadow:0 0 40px rgba(0,0,0,.5);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .mobile-bar{display:flex;}
+  .content{padding:26px 18px 60px;}
+  .triad-wrap{flex-direction:column;}
+  .hex-stage{width:300px; height:300px;}
+  .hex-node{width:80px;}
+}
+.overlay{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:40;
+}
+.overlay.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="mobile-bar">
+  <div class="sb-title">TEMA 8 · Privacidad</div>
+  <button class="menu-btn" id="menuToggle" aria-label="Abrir menú">☰ Índice</button>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sb-eyebrow">Gobierno del Dato &middot; Tema 8</div>
+      <div class="sb-title">Expediente: Privacidad</div>
+      <div class="sb-sub">Origen y definiciones</div>
+      <span class="sb-stamp">Confidencial</span>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="intro"><span class="tnum">01</span> Definiciones</button>
+      <button class="tab-btn" data-tab="cronologia"><span class="tnum">02</span> Cronología</button>
+      <button class="tab-btn" data-tab="prosser"><span class="tnum">03</span> Categorías Prosser</button>
+      <button class="tab-btn" data-tab="dimensiones"><span class="tnum">04</span> 6 Dimensiones</button>
+      <button class="tab-btn" data-tab="casos"><span class="tnum">05</span> Casos reales</button>
+      <button class="tab-btn" data-tab="comparativa"><span class="tnum">06</span> Privacidad vs Datos</button>
+      <button class="tab-btn" data-tab="flashcards"><span class="tnum">07</span> Flashcards</button>
+      <button class="tab-btn" data-tab="quiz"><span class="tnum">08</span> Quiz final</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      UNIR · Gobierno del Dato<br>
+      Material de estudio interactivo
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ================= 01 INTRO / DEFINICIONES ================= -->
+    <section class="panel active" id="intro">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 01 — Apertura del caso</div>
+        <h2 class="htitle">¿Qué es la privacidad?</h2>
+        <p class="lede">Antes de hablar de leyes o de RGPD, hay que entender una idea simple: la privacidad es lo que nos permite tener una esfera de vida que no está bajo control ni observación de nadie más.</p>
+      </div>
+
+      <div class="context-box">
+        <b>Contexto:</b> este capítulo arranca con un vídeo producido por la Autoridad de Control de Irlanda (Irish DPC) para el <b>Día Europeo de Protección de Datos</b> (28 de enero). Su mensaje es directo: hoy manejamos una cantidad enorme de datos personales en nuestra vida cotidiana, muchas veces sin darnos cuenta.
+      </div>
+
+      <h3 style="font-family:var(--serif); color:#fff; font-size:19px; margin-bottom:4px;">Tres definiciones que conviene tener claras</h3>
+      <p class="lede" style="margin-bottom:6px;">No memorices las frases en inglés: entiende la idea de fondo de cada una.</p>
+      <div class="def-grid">
+        <div class="def-card">
+          <div class="def-quote">"The right of people to live their lives in a manner reasonably secluded from public scrutiny."</div>
+          <div class="def-meaning">→ Derecho a NO ser observado públicamente</div>
+        </div>
+        <div class="def-card">
+          <div class="def-quote">"The right of people to make personal decisions regarding intimate matters."</div>
+          <div class="def-meaning">→ Derecho a decidir sobre lo íntimo, sin presión externa</div>
+        </div>
+        <div class="def-card">
+          <div class="def-quote">"Someone's right to keep their personal matters and relationships secret."</div>
+          <div class="def-meaning">→ Derecho a mantener relaciones en secreto</div>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--serif); color:#fff; font-size:19px;">Los 3 ejes clave de la privacidad</h3>
+      <p class="lede">Si memorizar tres frases en inglés es difícil, quédate con esta idea: toda la privacidad gira alrededor de tres ejes. Imagina un núcleo central ("Privacidad") del que salen tres protecciones distintas:</p>
+
+      <div class="triad-wrap">
+        <div class="triad-row">
+          <div class="triad-item"><b>Escrutinio</b>Protección frente a la observación pública sin consentimiento.</div>
+        </div>
+        <div class="triad-line"></div>
+        <div class="triad-hub">Privacidad</div>
+        <div class="triad-line"></div>
+        <div class="triad-row">
+          <div class="triad-item"><b>Decisiones íntimas</b>Que nadie decida por ti en base a aspectos personales (salud, orientación, ideas).</div>
+          <div class="triad-item"><b>Relaciones</b>Derecho a mantener vínculos personales fuera del dominio público.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 02 CRONOLOGÍA ================= -->
+    <section class="panel" id="cronologia">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 02 — Línea de tiempo</div>
+        <h2 class="htitle">Cronología: cómo nació este derecho</h2>
+        <p class="lede">La privacidad no se inventó con Internet. Es un derecho que se fue construyendo durante más de 2.000 años, casi siempre como reacción a un abuso de poder. Sigue la línea: cada hito es la respuesta a algo que pasó antes.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">Antigua Grecia</div>
+          <div class="tl-card">
+            <h4>Aristóteles: nace la distinción público / privado</h4>
+            <p>Primera vez que se separa conceptualmente <b>lo público</b> (la actividad política, la vida en la polis) de <b>lo privado</b> (la familia, el hogar, la vida doméstica). Sin esta distinción inicial, no existiría el concepto moderno de privacidad.</p>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1791</div>
+          <div class="tl-card">
+            <h4>4ª Enmienda de la Constitución de EE.UU.</h4>
+            <p>Reconoce la <b>inviolabilidad del domicilio</b> frente a registros arbitrarios del Estado. La idea de fondo: el poder que hay que limitar en los siglos XVIII–XIX es el Estado. Hoy esa misma lógica se aplica también a las grandes empresas tecnológicas.</p>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1890</div>
+          <div class="tl-card">
+            <h4>Warren &amp; Brandeis — "El Derecho a la Privacidad"</h4>
+            <p>Ensayo publicado en el <i>Harvard Law Review</i>, motivado por el auge de la prensa sensacionalista en Nueva York. Los primeros "paparazzi" exponían la vida privada de la alta sociedad, abriendo el debate: ¿hasta dónde puede escudriñarse la vida de una persona?</p>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1948</div>
+          <div class="tl-card">
+            <h4>Declaración Universal de los Derechos Humanos — Art. 12</h4>
+            <p>La privacidad pasa a ser un <b>derecho humano</b> reconocido internacionalmente.</p>
+            <div class="tl-quote">"Nadie será objeto de injerencias arbitrarias en su vida privada, su familia, su domicilio o su correspondencia, ni de ataques a su honra o a su reputación."</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1953 → 2000</div>
+          <div class="tl-card">
+            <h4>Convenio Europeo de DD.HH. → Carta Europea de Derechos Fundamentales</h4>
+            <p>El principio de 1948 se incorpora a Europa en 1953 y se refuerza en el año 2000, en el <b>Artículo 7</b>: "Toda persona tiene derecho al respeto de su vida privada y familiar, de su domicilio y de sus comunicaciones." Este artículo es la base del concepto europeo actual de privacidad y protección de datos.</p>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1960</div>
+          <div class="tl-card">
+            <h4>William Prosser sistematiza la invasión a la privacidad</h4>
+            <p>Un profesor de la Universidad de California identifica, por primera vez, <b>4 formas concretas</b> en las que se puede invadir la privacidad de alguien. Esto se convierte en la base del derecho moderno en EE.UU. → lo vemos en detalle en la siguiente sección.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 03 PROSSER ================= -->
+    <section class="panel" id="prosser">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 03 — Tipología de infracciones</div>
+        <h2 class="htitle">Las 4 categorías de Prosser (1960)</h2>
+        <p class="lede">William Prosser publicó "Privacy" en la California Law Review y definió 4 formas en que alguien puede invadir tu privacidad. Es la antesala del concepto moderno de privacidad. Piensa en estas 4 como "los 4 delitos clásicos contra tu vida privada".</p>
+      </div>
+
+      <div class="prosser-grid">
+        <div class="prosser-card">
+          <div class="prosser-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="prosser-num">01</div>
+          <h4>Intrusión en la vida privada</h4>
+          <p>Acceso no autorizado a la vida personal de alguien: vigilancia, escuchas clandestinas, espiar comunicaciones privadas.</p>
+        </div>
+        <div class="prosser-card">
+          <div class="prosser-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l18-7-7 18-2-8-9-3z"/></svg>
+          </div>
+          <div class="prosser-num">02</div>
+          <h4>Divulgación pública de hechos privados</h4>
+          <p>Difundir información personal real, sin consentimiento, cuando esa difusión resultaría ofensiva para cualquier persona razonable.</p>
+        </div>
+        <div class="prosser-card">
+          <div class="prosser-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 13c0-4 3.5-7 8-7s8 3 8 7-3.5 7-8 7-8-3-8-7z"/><path d="M9 13h.01M15 13h.01"/></svg>
+          </div>
+          <div class="prosser-num">03</div>
+          <h4>Presentación bajo una luz falsa</h4>
+          <p>"False Light": publicar información (no necesariamente falsa, pero distorsionada) que genera una imagen engañosa de alguien.</p>
+        </div>
+        <div class="prosser-card">
+          <div class="prosser-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1c0-4 4-6 8-6s8 2 8 6v1"/></svg>
+          </div>
+          <div class="prosser-num">04</div>
+          <h4>Apropiación del nombre o imagen</h4>
+          <p>Uso no autorizado del nombre o la imagen de una persona, generalmente con fines comerciales o de beneficio propio.</p>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <b>¿Y en Europa?</b> No se usan estas 4 categorías literalmente, pero su espíritu vive en el <b>RGPD</b> (Reglamento General de Protección de Datos), en las leyes que protegen el honor y la imagen personal (que permiten exigir eliminación de contenido e indemnizaciones) y en normas penales que castigan invasiones graves, como la difusión no consentida de contenido íntimo — que puede incluso implicar penas de cárcel.
+      </div>
+    </section>
+
+    <!-- ================= 04 DIMENSIONES ================= -->
+    <section class="panel" id="dimensiones">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 04 — Mapa de cobertura</div>
+        <h2 class="htitle">Las 6 dimensiones modernas de la privacidad</h2>
+        <p class="lede">A partir del trabajo de Prosser, hoy se reconocen 6 grandes "zonas" de tu vida que merecen protección (algunos autores añaden una séptima). Toca cada nodo del diagrama para ver el detalle.</p>
+      </div>
+
+      <div class="hex-wrap">
+        <div class="hex-stage" id="hexStage">
+          <svg viewBox="0 0 100 100">
+            <line x1="50" y1="50" x2="50" y2="12" stroke="#2a323b" stroke-width="1"/>
+            <line x1="50" y1="50" x2="82.9" y2="31" stroke="#2a323b" stroke-width="1"/>
+            <line x1="50" y1="50" x2="82.9" y2="69" stroke="#2a323b" stroke-width="1"/>
+            <line x1="50" y1="50" x2="50" y2="88" stroke="#2a323b" stroke-width="1"/>
+            <line x1="50" y1="50" x2="17.1" y2="69" stroke="#2a323b" stroke-width="1"/>
+            <line x1="50" y1="50" x2="17.1" y2="31" stroke="#2a323b" stroke-width="1"/>
+          </svg>
+          <div class="hex-center">VISIÓN<br>MODERNA</div>
+          <button class="hex-node active" data-id="0" style="left:50%; top:12%;"><span class="hn-num">01</span>Comportamiento y acción</button>
+          <button class="hex-node" data-id="1" style="left:82.9%; top:31%;"><span class="hn-num">02</span>Comunicaciones</button>
+          <button class="hex-node" data-id="2" style="left:82.9%; top:69%;"><span class="hn-num">03</span>Datos e imagen</button>
+          <button class="hex-node" data-id="3" style="left:50%; top:88%;"><span class="hn-num">04</span>Pensamientos y sentimientos</button>
+          <button class="hex-node" data-id="4" style="left:17.1%; top:69%;"><span class="hn-num">05</span>Localización y espacio</button>
+          <button class="hex-node" data-id="5" style="left:17.1%; top:31%;"><span class="hn-num">06</span>Asociación</button>
+        </div>
+
+        <div class="hex-detail" id="hexDetail">
+          <!-- contenido inyectado por JS -->
+        </div>
+      </div>
+
+      <div class="note-box">
+        <b>Retos actuales:</b> videovigilancia masiva, filtraciones de comunicaciones, perfiles digitales construidos a partir de múltiples fuentes, y el uso de <b>inteligencia artificial</b> para inferir intereses, creencias u opiniones a partir de tus interacciones — aunque nunca las hayas compartido directamente.
+      </div>
+    </section>
+
+    <!-- ================= 05 CASOS ================= -->
+    <section class="panel" id="casos">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 05 — Archivo de casos</div>
+        <h2 class="htitle">Casos reales que explican por qué importa</h2>
+        <p class="lede">Esta es la parte más fácil de recordar: son historias, no definiciones. Cada caso ilustra un riesgo concreto de no proteger la privacidad.</p>
+      </div>
+
+      <div class="case-grid">
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 01</span><span class="case-year">1948</span></div>
+          <h4>"1984" de George Orwell</h4>
+          <p>Escrita después de la Segunda Guerra Mundial, describe una sociedad donde la privacidad desaparece por completo: cámaras invaden los espacios privados, se controla toda la información y hasta la historia se manipula para beneficiar al poder. Los ciudadanos terminan perdiendo su capacidad crítica.</p>
+          <div class="case-lesson"><b>Lección clave</b>Aunque era una crítica a los totalitarismos de su época, hoy sirve para pensar en la vigilancia digital, la manipulación de información y la recopilación masiva de datos.</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 02</span><span class="case-year">Tribunal Supremo de EE.UU.</span></div>
+          <h4>William O. Douglas: "el derecho a que te dejen en paz"</h4>
+          <p>Este magistrado planteó que ese derecho es <i>la base de todas las libertades</i>. Su razonamiento: sin un espacio privado para pensar, comunicarte y relacionarte sin vigilancia constante, tu libertad individual queda limitada — aunque nadie te lo diga directamente.</p>
+          <div class="case-lesson"><b>Lección clave</b>La privacidad no es un lujo ni un capricho: es la condición necesaria para poder ejercer el resto de tus derechos.</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 03</span><span class="case-year">Edward Snowden</span></div>
+          <h4>"No tengo nada que ocultar" — el argumento que no se sostiene</h4>
+          <p>Snowden conecta privacidad con libertad de expresión: ambas son esenciales en democracia. Critica directamente la frase "si no tienes nada que ocultar, no debes preocuparte por la privacidad", comparándola con decir que la libertad de expresión no importa porque "no tienes nada que decir".</p>
+          <div class="case-lesson"><b>Lección clave</b>Sin privacidad, las personas quedan expuestas al escrutinio, control o manipulación — incluso si nunca hicieron nada "malo".</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 04</span><span class="case-year">Actualidad</span></div>
+          <h4>Vigilancia intrusiva: el "gran ojo" digital</h4>
+          <p>Existe un ranking de los países con más ciudadanos vigilados por videovigilancia (China, EE.UU., Reino Unido, Singapur, Australia, entre otros). Aunque las cámaras pueden tener una finalidad legítima (seguridad), siempre queda la pregunta: ¿esa información podría usarse después para otros fines no autorizados?</p>
+          <div class="case-lesson"><b>Lección clave</b>Proteger datos no es solo justificar su recolección, sino garantizar controles que impidan usos indebidos posteriores.</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 05</span><span class="case-year">Redes sociales</span></div>
+          <h4>El "derecho a evolucionar"</h4>
+          <p>Lo que publicas hoy puede seguir disponible años después. Hay casos de deportistas y figuras públicas cuyas declaraciones antiguas reaparecen y afectan contrataciones o su imagen pública, incluso después de disculparse o cambiar de postura.</p>
+          <div class="case-lesson"><b>Lección clave</b>Las personas deberían poder cambiar de opinión y crecer sin quedar atrapadas para siempre por su pasado digital.</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 06</span><span class="case-year">RDA, posguerra</span></div>
+          <h4>La Stasi y los grafos de relaciones</h4>
+          <p>Las redes sociales modernas identifican relaciones mediante "grafos" (quién conoce a quién, qué intereses comparten). La policía secreta de la Alemania Oriental, la Stasi, hacía exactamente eso a mano: mapas de relaciones para vigilar y reprimir a cualquiera considerado una amenaza para el régimen.</p>
+          <div class="case-stats">
+            <div class="cstat"><div class="cval">6 M</div><div class="clab">expedientes</div></div>
+            <div class="cstat"><div class="cval">90.000</div><div class="clab">miembros</div></div>
+            <div class="cstat"><div class="cval">200.000</div><div class="clab">confidentes</div></div>
+            <div class="cstat"><div class="cval">~70.000</div><div class="clab">víctimas (est.)</div></div>
+          </div>
+          <div class="case-lesson"><b>Lección clave</b>Datos aparentemente inocentes (con quién te relacionas, qué te interesa) pueden usarse para perseguir si caen en manos indebidas.</div>
+        </div>
+
+        <div class="case-card">
+          <span class="case-stamp">Caso real</span>
+          <div class="case-top"><span class="case-num">CASO 07</span><span class="case-year">Segunda Guerra Mundial</span></div>
+          <h4>Países Bajos: cuando cambia la finalidad de un dato</h4>
+          <p>Holanda tuvo el mayor número de víctimas judías de Europa occidental durante el Holocausto. Una de las razones: la administración había recopilado, durante años, registros muy detallados sobre la religión de sus ciudadanos — con una finalidad administrativa, sin intención maliciosa. Las autoridades nazis aprovecharon esos censos y registros para identificar y localizar a la población judía.</p>
+          <div class="case-lesson"><b>Lección clave</b>Este es el ejemplo clásico de "cambio de finalidad": un dato recopilado para un propósito legítimo puede usarse después con fines que nadie imaginó originalmente. Es la razón por la que el gobierno del dato exige definir y limitar la finalidad de cada dato que se recolecta.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 06 COMPARATIVA ================= -->
+    <section class="panel" id="comparativa">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 06 — Confrontación de conceptos</div>
+        <h2 class="htitle">Privacidad vs. Protección de Datos</h2>
+        <p class="lede">Este es el punto que más se confunde en examen. No son lo mismo, aunque están muy relacionados: uno es el fin, el otro es el medio.</p>
+      </div>
+
+      <div class="compare-wrap">
+        <div class="compare-col left">
+          <h3>🔒 Privacidad</h3>
+          <div class="compare-row"><div class="clabel">Qué es</div><div class="cval2">Un derecho amplio a la vida privada, familiar, al domicilio y a las comunicaciones.</div></div>
+          <div class="compare-row"><div class="clabel">Qué protege</div><div class="cval2">Tu esfera íntima frente al escrutinio público, las decisiones externas sobre tu vida y tus relaciones personales.</div></div>
+          <div class="compare-row"><div class="clabel">Base normativa</div><div class="cval2">Declaración Universal de DD.HH. (Art. 12), Carta Europea de Derechos Fundamentales (Art. 7).</div></div>
+          <div class="compare-row"><div class="clabel">Naturaleza</div><div class="cval2">Derecho genérico, conceptual, ligado a la dignidad humana.</div></div>
+        </div>
+        <div class="compare-col right">
+          <h3>🗂️ Protección de Datos</h3>
+          <div class="compare-row"><div class="clabel">Qué es</div><div class="cval2">Un poder de disposición y control sobre tus datos personales concretos.</div></div>
+          <div class="compare-row"><div class="clabel">Qué protege</div><div class="cval2">Tu capacidad de decidir qué datos compartes, con quién, para qué fin — y de saber quién los tiene y oponerte a su uso.</div></div>
+          <div class="compare-row"><div class="clabel">Base normativa</div><div class="cval2">RGPD en Europa; en España, sentencia <b>STC 292/2000</b>.</div></div>
+          <div class="compare-row"><div class="clabel">Naturaleza</div><div class="cval2">Derecho operativo, específico, con mecanismos legales concretos (acceso, oposición, supresión...).</div></div>
+        </div>
+      </div>
+
+      <div class="key-diff">
+        <b>La diferencia en una frase:</b> la privacidad es el derecho a tener una vida fuera del control de otros; la protección de datos es la <b>herramienta de control</b> que te permite ejercer ese derecho sobre tu información concreta. Sin protección de datos, la privacidad sería casi imposible de preservar en la práctica.
+      </div>
+    </section>
+
+    <!-- ================= 07 FLASHCARDS ================= -->
+    <section class="panel" id="flashcards">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 07 — Repaso activo</div>
+        <h2 class="htitle">Flashcards</h2>
+        <p class="lede">Haz clic en la tarjeta para ver la respuesta. Usa las flechas ← → del teclado para moverte, y espacio o enter para girar la tarjeta.</p>
+      </div>
+
+      <div class="fc-wrap">
+        <div class="fc-counter" id="fcCounter">1 / 20</div>
+        <div class="fc-scene">
+          <div class="fc-card" id="fcCard">
+            <div class="fc-face fc-front">
+              <span class="fc-tag">Pregunta</span>
+              <div class="fc-text" id="fcFront"></div>
+              <span class="fc-flip-hint">clic para girar ↻</span>
+            </div>
+            <div class="fc-face fc-back">
+              <span class="fc-tag">Respuesta</span>
+              <div class="fc-text" id="fcBack"></div>
+              <span class="fc-flip-hint">clic para girar ↻</span>
+            </div>
+          </div>
+        </div>
+        <div class="fc-controls">
+          <button class="fc-btn" id="fcPrev">← Anterior</button>
+          <button class="fc-btn" id="fcShuffle"><span class="fc-shuffle">🔀 Mezclar</span></button>
+          <button class="fc-btn" id="fcNext">Siguiente →</button>
+        </div>
+        <div class="fc-hint-row">Tip: intenta responder en voz alta antes de girar la tarjeta.</div>
+      </div>
+    </section>
+
+    <!-- ================= 08 QUIZ ================= -->
+    <section class="panel" id="quiz">
+      <div class="section-head">
+        <div class="eyebrow">Expediente 08 — Evaluación final</div>
+        <h2 class="htitle">Quiz: ¿cerramos el expediente?</h2>
+        <p class="lede">10 preguntas aleatorias por ronda — incluye preguntas reales de exámenes pasados de UNIR (RGPD, anonimización, casos prácticos) y variantes generadas para seguir practicando. Responde todas y pulsa <b>Evaluar</b>; luego pide una <b>nueva ronda</b> (algunas preguntas pueden repetirse).</p>
+      </div>
+
+      <div class="quiz-wrap" id="quizWrap">
+        <div id="quiz-content"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ========================= NAVEGACIÓN ========================= */
+var tabBtns = document.querySelectorAll('.tab-btn');
+var panels = document.querySelectorAll('.panel');
+var sidebar = document.getElementById('sidebar');
+var overlay = document.getElementById('overlay');
+var menuToggle = document.getElementById('menuToggle');
+
+function activateTab(tabId){
+  for(var i=0;i<tabBtns.length;i++){
+    tabBtns[i].classList.toggle('active', tabBtns[i].getAttribute('data-tab') === tabId);
+  }
+  for(var j=0;j<panels.length;j++){
+    panels[j].classList.toggle('active', panels[j].id === tabId);
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+  closeMobileMenu();
+}
+
+for(var t=0;t<tabBtns.length;t++){
+  tabBtns[t].addEventListener('click', function(){
+    activateTab(this.getAttribute('data-tab'));
+  });
+}
+
+function openMobileMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+function closeMobileMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+menuToggle.addEventListener('click', function(){
+  if(sidebar.classList.contains('open')){ closeMobileMenu(); } else { openMobileMenu(); }
+});
+overlay.addEventListener('click', closeMobileMenu);
+
+function currentPanelId(){
+  for(var i=0;i<panels.length;i++){
+    if(panels[i].classList.contains('active')) return panels[i].id;
+  }
+  return '';
+}
+
+/* ========================= DIAGRAMA HEXAGONAL (6 dimensiones) ========================= */
+var hexData = [
+  {title:'1. Privacidad de comportamiento y acción', text:'Control sobre la vigilancia y observación de tu comportamiento personal: actividades cotidianas, hábitos y acciones privadas.'},
+  {title:'2. Privacidad de las comunicaciones', text:'Protección de la confidencialidad e integridad de tus interacciones: conversaciones, mensajes, correos electrónicos y llamadas.'},
+  {title:'3. Privacidad de datos e imagen', text:'Control sobre el uso y la difusión de tu información personal y tus representaciones visuales (fotos, vídeos, datos) frente a exposición pública no autorizada.'},
+  {title:'4. Privacidad de pensamientos y sentimientos', text:'Protección frente a la intrusión en tus opiniones, creencias, emociones y procesos internos que no has compartido públicamente.'},
+  {title:'5. Privacidad de localización y espacio', text:'Control sobre el acceso, registro o divulgación de tu ubicación física, tanto en espacios privados como públicos.'},
+  {title:'6. Privacidad de asociación', text:'Derecho a mantener la confidencialidad sobre tu participación en grupos sociales, políticos, religiosos o profesionales, sin vigilancia injustificada.'}
+];
+var hexNodes = document.querySelectorAll('.hex-node');
+var hexDetail = document.getElementById('hexDetail');
+
+function renderHexDetail(id){
+  var d = hexData[id];
+  hexDetail.innerHTML = '<h4>'+d.title+'</h4><p>'+d.text+'</p><div class="hex-hint">Toca otro nodo del diagrama para comparar las dimensiones.</div>';
+}
+for(var h=0; h<hexNodes.length; h++){
+  hexNodes[h].addEventListener('click', function(){
+    for(var k=0;k<hexNodes.length;k++){ hexNodes[k].classList.remove('active'); }
+    this.classList.add('active');
+    renderHexDetail(parseInt(this.getAttribute('data-id'),10));
+  });
+}
+renderHexDetail(0);
+
+/* ========================= FLASHCARDS ========================= */
+var deck = [
+  {q:'¿Qué institución produjo el vídeo sobre privacidad para el Día Europeo de Protección de Datos?', a:'La Autoridad de Control de Irlanda (Irish DPC).'},
+  {q:'¿Qué fecha se celebra como Día Europeo de la Protección de Datos?', a:'El 28 de enero.'},
+  {q:'¿Quién hizo la primera distinción entre lo público y lo privado?', a:'Aristóteles, en la Antigua Grecia: lo público era la actividad política (la polis) y lo privado, la familia y la vida doméstica.'},
+  {q:'¿Qué reconoce la 4ª Enmienda de la Constitución de EE.UU. (1791)?', a:'La inviolabilidad del domicilio frente a registros arbitrarios del Estado.'},
+  {q:'¿Quiénes escribieron "El Derecho a la Privacidad" en 1890?', a:'Samuel Warren y Louis Brandeis, en el Harvard Law Review.'},
+  {q:'¿Qué impulsó el ensayo de Warren y Brandeis?', a:'El auge de la prensa sensacionalista ("paparazzi") que exponía la vida privada de la alta sociedad en Nueva York.'},
+  {q:'¿Qué artículo de la Declaración Universal de los DD.HH. (1948) protege la privacidad?', a:'El Artículo 12.'},
+  {q:'¿Qué artículo de la Carta Europea de Derechos Fundamentales (2000) protege la vida privada?', a:'El Artículo 7.'},
+  {q:'¿Quién sistematizó las 4 categorías de invasión a la privacidad, en 1960?', a:'William L. Prosser, en su artículo "Privacy" (California Law Review).'},
+  {q:'Nombra las 4 categorías de Prosser.', a:'1) Intrusión en la vida privada · 2) Divulgación pública de hechos privados · 3) Presentación bajo una luz falsa · 4) Apropiación del nombre o imagen.'},
+  {q:'¿Cuántas dimensiones modernas de la privacidad se reconocen, como mínimo?', a:'6 (algunos autores consideran que existe una séptima).'},
+  {q:'Nombra las 6 dimensiones modernas de la privacidad.', a:'Comportamiento y acción · Comunicaciones · Datos e imagen · Pensamientos y sentimientos · Localización y espacio · Asociación.'},
+  {q:'¿Qué magistrado dijo que "el derecho a que te dejen en paz es la base de todas las libertades"?', a:'William O. Douglas, magistrado del Tribunal Supremo de EE.UU.'},
+  {q:'¿Qué crítica hace Edward Snowden al argumento "no tengo nada que ocultar"?', a:'La compara con decir que no importa la libertad de expresión porque "no tienes nada que decir".'},
+  {q:'¿Qué novela de Orwell describe una sociedad sin privacidad y con vigilancia total?', a:'"1984", publicada en 1948.'},
+  {q:'¿Qué era la Stasi?', a:'La policía secreta de la Alemania Oriental (RDA), que usaba mapas de relaciones ("grafos") para vigilar y reprimir a la ciudadanía.'},
+  {q:'¿Por qué Holanda tuvo el mayor número de víctimas judías de Europa occidental durante el Holocausto?', a:'Porque contaba con registros estatales muy detallados sobre la religión de sus ciudadanos, que las autoridades nazis usaron para identificar y localizar a la población judía.'},
+  {q:'¿Cuál es la diferencia clave entre Privacidad y Protección de Datos?', a:'La privacidad es el derecho general a la vida privada; la protección de datos es el poder específico de disposición y control sobre tus propios datos personales.'},
+  {q:'Según la sentencia española STC 292/2000, ¿qué es el derecho a la protección de datos?', a:'Un poder de disposición y control sobre los datos personales que permite a la persona decidir qué datos compartir, con quién y para qué fines.'},
+  {q:'¿Qué significa el "derecho a evolucionar" en el contexto digital?', a:'La posibilidad de cambiar de opinión y crecer como persona sin quedar definido para siempre por acciones o ideas publicadas en el pasado.'}
+];
+var fcOrder = deck.map(function(_,i){return i;});
+var fcIndex = 0;
+var fcCard = document.getElementById('fcCard');
+var fcFront = document.getElementById('fcFront');
+var fcBack = document.getElementById('fcBack');
+var fcCounter = document.getElementById('fcCounter');
+
+function renderFc(){
+  var item = deck[fcOrder[fcIndex]];
+  fcCard.classList.remove('flipped');
+  fcFront.textContent = item.q;
+  fcBack.textContent = item.a;
+  fcCounter.textContent = (fcIndex+1) + ' / ' + deck.length;
+}
+fcCard.addEventListener('click', function(){ fcCard.classList.toggle('flipped'); });
+document.getElementById('fcNext').addEventListener('click', function(){
+  fcIndex = (fcIndex+1) % deck.length;
+  renderFc();
+});
+document.getElementById('fcPrev').addEventListener('click', function(){
+  fcIndex = (fcIndex-1+deck.length) % deck.length;
+  renderFc();
+});
+document.getElementById('fcShuffle').addEventListener('click', function(){
+  for(var i=fcOrder.length-1;i>0;i--){
+    var r = Math.floor(Math.random()*(i+1));
+    var tmp = fcOrder[i]; fcOrder[i]=fcOrder[r]; fcOrder[r]=tmp;
+  }
+  fcIndex = 0;
+  renderFc();
+});
+renderFc();
+
+document.addEventListener('keydown', function(e){
+  if(currentPanelId() !== 'flashcards') return;
+  if(e.key === 'ArrowRight'){ document.getElementById('fcNext').click(); }
+  else if(e.key === 'ArrowLeft'){ document.getElementById('fcPrev').click(); }
+  else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); fcCard.classList.toggle('flipped'); }
+});
+
+/* ========================= QUIZ (rondas de 10) ========================= */
+var allQ = [
+  /* ---- Historia y conceptos (Expedientes 01-06) ---- */
+  {q:'¿Quién estableció la primera distinción entre lo público y lo privado?', opts:['Warren y Brandeis','Aristóteles','William Prosser','Edward Snowden'], c:1, exp:'Aristóteles, en la Antigua Grecia, separó la actividad política (polis) de la vida familiar y doméstica.'},
+  {q:'La 4ª Enmienda de la Constitución de EE.UU. (1791) protege principalmente:', opts:['La libertad de expresión','La inviolabilidad del domicilio','El derecho al olvido','La propiedad intelectual'], c:1, exp:'Reconoce la inviolabilidad del domicilio frente a registros arbitrarios del Estado.'},
+  {q:'El ensayo "El Derecho a la Privacidad" (1890) fue escrito por:', opts:['William Prosser','William O. Douglas','Warren y Brandeis','Edward Snowden'], c:2, exp:'Samuel Warren y Louis Brandeis lo publicaron en el Harvard Law Review.'},
+  {q:'¿Qué artículo de la Declaración Universal de los DD.HH. (1948) protege la vida privada?', opts:['Artículo 1','Artículo 7','Artículo 12','Artículo 19'], c:2, exp:'El Artículo 12 establece que nadie será objeto de injerencias arbitrarias en su vida privada.'},
+  {q:'Las 4 categorías de invasión a la privacidad fueron sistematizadas por:', opts:['Aristóteles','William Prosser','Edward Snowden','George Orwell'], c:1, exp:'William Prosser las publicó en 1960, en su artículo "Privacy".'},
+  {q:'¿Cuál de estas NO es una de las 4 categorías de Prosser?', opts:['Intrusión en la vida privada','Divulgación pública de hechos privados','Derecho al olvido','Apropiación del nombre o imagen'], c:2, exp:'El "derecho al olvido" es un concepto distinto, propio de la protección de datos moderna, no una categoría de Prosser.'},
+  {q:'La novela "1984" de George Orwell ilustra principalmente:', opts:['El marketing digital','La vigilancia total y la pérdida de privacidad','La economía de datos','El derecho de portabilidad'], c:1, exp:'Describe una sociedad donde el gobierno ejerce vigilancia constante y controla la información.'},
+  {q:'Edward Snowden compara el argumento "no tengo nada que ocultar" con:', opts:['Decir que la propiedad privada no existe','Decir que no importa la libertad de expresión porque no tienes nada que decir','Decir que la democracia no es necesaria','Decir que el anonimato es ilegal'], c:1, exp:'Para Snowden, ambos derechos (privacidad y libertad de expresión) son esenciales aunque "no los uses" activamente.'},
+  {q:'La Stasi era:', opts:['Una agencia europea de protección de datos','La policía secreta de Alemania Oriental','Una ONG de derechos digitales','Un tribunal internacional'], c:1, exp:'Usaba mapas de relaciones ("grafos") para vigilar y reprimir a quienes consideraba una amenaza para el régimen.'},
+  {q:'El caso de los Países Bajos durante el Holocausto ilustra principalmente:', opts:['El derecho al olvido','El cambio de finalidad en el uso de datos personales','El marketing relacional','El derecho de portabilidad'], c:1, exp:'Datos recopilados con fines administrativos (censos religiosos) fueron usados después con un fin radicalmente distinto y trágico.'},
+  {q:'¿Cuántas dimensiones modernas de la privacidad se identifican, como mínimo?', opts:['3','4','6','10'], c:2, exp:'Se reconocen 6 dimensiones (comportamiento, comunicaciones, datos e imagen, pensamientos, localización, asociación).'},
+  {q:'Según la STC 292/2000 (España), la protección de datos se define como:', opts:['Un derecho exclusivo de las empresas','Un poder de disposición y control sobre los datos personales','Una obligación únicamente del Estado','Un derecho que solo aplica a menores de edad'], c:1, exp:'Es un poder de disposición y control que permite decidir qué datos compartir, con quién y para qué fines.'},
+  {q:'La diferencia principal entre privacidad y protección de datos es que:', opts:['Son sinónimos exactos','La protección de datos da al ciudadano capacidad de decisión y control sobre su información','La privacidad solo existe en Europa','La protección de datos no es un derecho fundamental'], c:1, exp:'La privacidad es el derecho amplio; la protección de datos es el mecanismo concreto de control sobre tu información.'},
+  {q:'El Día Europeo de la Protección de Datos se celebra el:', opts:['28 de enero','25 de mayo','10 de diciembre','1 de abril'], c:0, exp:'Se celebra cada 28 de enero.'},
+
+  /* ---- RGPD: principios y derechos (preguntas reales de examen + variantes) ---- */
+  {q:'Según el RGPD, ¿qué se entiende por "dato de carácter personal"?', opts:['Toda información sobre una persona física identificada o identificable','Únicamente los datos de identificación oficial (DNI, pasaporte)','Solo la información relativa a la vida privada de las personas','Toda información que concierna a personas, estén vivas o fallecidas'], c:0, exp:'El RGPD define "dato personal" de forma muy amplia: cualquier información sobre una persona física identificada o identificable.'},
+  {q:'El Convenio 108 del Consejo de Europa, primer instrumento que reguló un marco común de protección de datos en la UE, es de:', opts:['1995','1992','1999','1981'], c:3, exp:'El Convenio 108 se adoptó en 1981, mucho antes del RGPD (2016/2018).'},
+  {q:'¿Cuáles de los siguientes son principios generales de protección de datos del RGPD?', opts:['Solo la confidencialidad e integridad','Solo la responsabilidad proactiva','Solo la transparencia de la información','Confidencialidad e integridad, responsabilidad proactiva y transparencia, entre otros'], c:3, exp:'El RGPD reúne varios principios (licitud, minimización, exactitud, confidencialidad, responsabilidad proactiva, transparencia...); no son excluyentes entre sí.'},
+  {q:'¿En qué casos reconoce el RGPD la necesidad de una protección específica para el tratamiento de datos de menores?', opts:['Solo en marketing dirigido a niños','Solo en la elaboración de perfiles','Solo cuando el servicio se ofrece directamente a un niño','En todos los casos anteriores'], c:3, exp:'El RGPD pone especial atención en menores tanto en marketing, como en perfilado y en servicios dirigidos directamente a ellos.'},
+  {q:'Sobre la seguridad en el RGPD, ¿cuál de las siguientes afirmaciones es correcta?', opts:['La seguridad "absoluta" no existe; se gestionan los riesgos con medidas técnicas y organizativas equilibrando coste y efecto','Aplicar la ISO/IEC 27002 elimina por completo todos los riesgos','El RGPD solo exige un nivel de seguridad: el alto','Solo las grandes corporaciones deben establecer un marco de seguridad'], c:0, exp:'El RGPD parte de un enfoque de gestión de riesgos, no de seguridad absoluta: se buscan medidas proporcionadas, no la eliminación total del riesgo.'},
+  {q:'La Privacidad por Diseño (Privacy by Design), de Ann Cavoukian, incluye entre sus principios:', opts:['La privacidad como configuración predeterminada','La privacidad incrustada en el diseño','La seguridad extremo a extremo durante todo el ciclo de vida','Las tres anteriores son principios de la Privacidad por Diseño'], c:3, exp:'Son 3 de los 7 principios originales de Cavoukian: privacidad por defecto, incrustada en el diseño y protección de ciclo de vida completo.'},
+  {q:'¿Cuál de los siguientes NO se considera un dato de categoría especial según el RGPD?', opts:['El origen étnico o racial','Los datos genéticos','Los datos biométricos para identificar de forma univoca a una persona','El currículum vitae o historial profesional'], c:3, exp:'El CV no es, por sí mismo, una categoría especial. Sí lo son: salud, origen étnico, datos genéticos/biométricos, orientación sexual, creencias, etc.'},
+  {q:'¿Cuál de los siguientes NO es un derecho que el RGPD reconoce a las personas afectadas?', opts:['Acceso','Legitimación','Rectificación','Oposición'], c:1, exp:'La "legitimación" es una base de licitud del tratamiento (Art. 6 RGPD), no un derecho del interesado. Los derechos clásicos son acceso, rectificación, supresión, oposición, limitación y portabilidad.'},
+  {q:'¿En cuál de estos casos NO se recomienda necesariamente realizar una Evaluación de Impacto (EIPD)?', opts:['Cuando el tratamiento afecta a un número elevado de personas','Cuando se tratan grandes volúmenes de datos personales','Cuando existen transferencias internacionales de datos','Cuando el tratamiento es esporádico, limitado, y afecta a personas de interés público'], c:3, exp:'Los tratamientos de bajo riesgo, esporádicos y limitados no requieren obligatoriamente una EIPD, a diferencia de los tratamientos a gran escala o con transferencias internacionales.'},
+  {q:'Según el Grupo de Trabajo del Artículo 29 (WP29), ¿cuáles son amenazas asociadas al Big Data?', opts:['Solo la magnitud de la recopilación de datos','Solo la seguridad de los datos','Solo el aumento de la vigilancia gubernamental','La magnitud de la recopilación, la seguridad de los datos y el aumento de las posibilidades de vigilancia, entre otras'], c:3, exp:'El WP29 identificó varias amenazas combinadas del Big Data: volumen, seguridad y mayor capacidad de vigilancia (pública y privada).'},
+  {q:'¿Cuál de las siguientes afirmaciones sobre las Evaluaciones de Impacto (EIPD) es FALSA?', opts:['La normativa obliga a realizar una EIPD cada 6 meses de forma automática, sin importar el riesgo','La EIPD es un proceso sistemático y reproducible','El resultado de la EIPD debe documentarse','La EIPD debe revisarse de forma periódica, no de una vez para siempre'], c:0, exp:'No existe una obligación de repetir la EIPD cada 6 meses por calendario; se revisa cuando cambian las condiciones o el riesgo del tratamiento.'},
+  {q:'El principio de "responsabilidad proactiva" (accountability) del RGPD implica que:', opts:['Basta con cumplir la norma, sin necesidad de demostrarlo','La organización debe poder demostrar activamente que cumple el RGPD (políticas, registros, evidencias)','Solo aplica a las administraciones públicas','Es un principio opcional para pymes'], c:1, exp:'Accountability va más allá de "cumplir": exige poder demostrarlo documentalmente ante una autoridad de control.'},
+  {q:'¿Cuándo es obligatorio realizar una Evaluación de Impacto (EIPD) según el RGPD?', opts:['Siempre que se trate cualquier dato personal, sin excepción','Cuando hay perfilado automatizado que afecta significativamente a los interesados, o tratamiento a gran escala de categorías especiales','Solo si lo solicita expresamente el interesado','Únicamente en el sector público'], c:1, exp:'La EIPD es obligatoria cuando el tratamiento entraña alto riesgo: perfilado con efectos significativos, tratamiento a gran escala de categorías especiales, videovigilancia sistemática, etc.'},
+
+  /* ---- Anonimización y técnicas (preguntas reales de examen + variantes) ---- */
+  {q:'¿Qué técnica de anonimización presenta riesgo de vinculabilidad, NO presenta riesgo de singularización, y SÍ presenta riesgo de inferencia?', opts:['Pseudonimización','Adición de ruido','K-anonymity','Cifrado simétrico'], c:2, exp:'El k-anonimato agrupa registros en bloques de al menos k individuos indistinguibles: elimina la singularización dentro del grupo, pero la vinculación con otras fuentes y la inferencia siguen siendo posibles.'},
+  {q:'Un dataset agrupa a 10 alumnos por género y rango de edad (5 años). El grupo "mujeres, 30-34 años" tiene un solo registro. ¿Cuál es el valor k de anonimato de ese dataset?', opts:['k = 1','k = 2','k = 3','k = 4'], c:0, exp:'El valor k de un dataset es el tamaño del grupo MÁS PEQUEÑO. Si hay un grupo con un solo registro, k = 1: ese individuo es identificable dentro de su grupo.'},
+  {q:'En ese mismo dataset, el grupo "mujeres, 25-29 años" tiene 3 registros y los 3 comparten el mismo diagnóstico (Lupus). ¿Qué nivel de l-diversity presenta ese grupo?', opts:['l = 1','l = 2','l = 3','l = 4'], c:0, exp:'L-diversity mide cuántos valores DISTINTOS del atributo sensible hay en el grupo. Si los 3 registros comparten el mismo diagnóstico, solo hay 1 valor distinto → l = 1 (riesgo de ataque por homogeneidad).'},
+  {q:'Una empresa de salud aplica permutación cruzada entre ingresos y códigos postales de pacientes con edades similares. ¿Qué ventaja principal ofrece esta técnica?', opts:['Reduce la calidad del análisis estadístico','Garantiza un anonimato irreversible al 100%','Permite mantener las distribuciones estadísticas clave del conjunto de datos','Mejora automáticamente la l-diversity'], c:2, exp:'La permutación intercambia valores entre registros similares: los datos individuales cambian de "dueño", pero las distribuciones estadísticas del conjunto se conservan.'},
+  {q:'Una aseguradora generaliza la edad en rangos de 10 años y reduce el código postal a sus 3 primeros dígitos. ¿Qué tipo de técnica está aplicando?', opts:['Adición de ruido','Generalización / Agregación','Permutación','Cifrado asimétrico'], c:1, exp:'Sustituir valores precisos por rangos o categorías más amplias (edad por décadas, CP truncado) es una técnica de generalización.'},
+  {q:'Una farmacéutica elimina los registros de pacientes que son los únicos con determinada enfermedad en una zona rural antes de publicar estadísticas. ¿Qué técnica está aplicando?', opts:['Permutación','Pseudonimización','Supresión de registros','Generalización'], c:2, exp:'Eliminar directamente los registros que destacan (outliers identificables) es supresión, distinta a generalizar o enmascarar valores.'},
+  {q:'Una empresa usa differential privacy para responder a consultas sobre el salario medio de sus empleados. ¿Cuál es la característica principal de esta técnica?', opts:['Sustituye los identificadores por seudónimos','Modifica permanentemente el dataset original','Aplica ruido matemático a los RESULTADOS de las consultas, no al dataset base','Permite identificar fácilmente a los sujetos de mayor riesgo'], c:2, exp:'La privacidad diferencial no toca el dataset original: añade ruido controlado a cada respuesta, de forma que no se pueda inferir si un individuo concreto está en los datos.'},
+  {q:'¿Cuál es la diferencia clave entre pseudonimización y anonimización?', opts:['Son exactamente lo mismo','La pseudonimización es reversible (sigue siendo dato personal); la anonimización pretende ser irreversible','La anonimización es más rápida de aplicar','La pseudonimización solo aplica a datos de salud'], c:1, exp:'Un dato pseudonimizado sigue siendo dato personal porque, con la clave adecuada, se puede volver a identificar a la persona; uno realmente anonimizado no debería poder revincularse.'},
+
+  /* ---- Escenarios aplicados (preguntas reales de examen) ---- */
+  {q:'Una red social configura por defecto los perfiles nuevos como públicos. ¿Qué requisito del RGPD debería haber aplicado?', opts:['Evaluación de impacto','Protección de datos desde el diseño y por defecto','Legitimación por interés legítimo','Minimización de datos'], c:1, exp:'La privacidad por defecto exige que la opción más protectora sea la predeterminada, sin que el usuario tenga que configurarla manualmente.'},
+  {q:'Un ecommerce envía newsletters comerciales sin haber recogido el consentimiento previo, alegando "interés legítimo". ¿Es lícito este tratamiento?', opts:['Sí, siempre que se haya informado previamente al cliente','No, las comunicaciones comerciales por email requieren, como regla general, consentimiento explícito previo','Sí, si se ha realizado una evaluación de impacto','No, salvo que el cliente sea habitual'], c:1, exp:'Para comunicaciones comerciales electrónicas, la base habitual no es el interés legítimo sino el consentimiento explícito previo.'},
+  {q:'Un retailer analiza datos de compra de hace más de 10 años para hacer modelos predictivos. ¿Qué principio puede estar en riesgo?', opts:['Confidencialidad','Limitación de la finalidad','Seguridad','Limitación del plazo de conservación'], c:3, exp:'Conservar datos más tiempo del necesario para la finalidad original vulnera el principio de limitación del plazo de conservación.'},
+  {q:'Una entidad financiera usa scoring con big data (ubicación, hábitos, redes sociales) para conceder créditos, sin explicar el motivo del rechazo. ¿Qué derecho se vulnera?', opts:['Derecho a la portabilidad','Derecho de acceso','Derecho a no ser objeto de decisiones basadas únicamente en tratamiento automatizado','Derecho a la rectificación'], c:2, exp:'El RGPD protege frente a decisiones totalmente automatizadas con efectos jurídicos significativos, sin intervención humana ni explicación.'},
+  {q:'Una app de seguimiento de hábitos solicita el GPS y recopila datos de navegación sin explicar claramente para qué los usará. ¿Qué principio vulnera?', opts:['Minimización de datos','Integridad y confidencialidad','Transparencia','Limitación de la conservación'], c:2, exp:'No informar con claridad sobre qué datos se recogen y con qué finalidad es, ante todo, un problema de transparencia.'},
+  {q:'Una clínica veterinaria externaliza su gestión de citas a una empresa tecnológica sin firmar ningún contrato formal. ¿Qué obligación se incumple?', opts:['Registro de actividades de tratamiento','Contrato entre responsable y encargado del tratamiento','Evaluación de impacto','Designación de un DPO'], c:1, exp:'Cuando un tercero trata datos en nombre de otra organización, el RGPD exige un contrato de encargado de tratamiento (Art. 28).'},
+  {q:'Una aseguradora construye un perfil de salud a partir de wearables y redes sociales de sus clientes. ¿Qué principio fundamental podría estar vulnerando?', opts:['Minimización de datos','Exactitud','Transparencia','Limitación del plazo de conservación'], c:0, exp:'Combinar fuentes adicionales más allá de lo estrictamente necesario para la finalidad del seguro suele vulnerar la minimización de datos.'},
+  {q:'Una empresa transfiere datos de usuarios europeos a una filial en EE.UU. sin cláusulas contractuales tipo ni decisión de adecuación. ¿Qué está incumpliendo?', opts:['La obligación de anonimización','El principio de conservación','Las garantías exigidas para transferencias internacionales de datos','El principio de minimización'], c:2, exp:'Las transferencias fuera del Espacio Económico Europeo requieren una garantía válida: decisión de adecuación, cláusulas contractuales tipo, normas corporativas vinculantes o, excepcionalmente, consentimiento explícito.'},
+  {q:'Una plataforma de selección con IA, entrenada mayoritariamente con perfiles masculinos, discrimina a candidatas con perfiles equivalentes. ¿Qué tipo de riesgo se ha materializado?', opts:['Riesgo de inexactitud','Riesgo de discriminación por sesgo','Riesgo de pérdida de confidencialidad','Riesgo de transferencia internacional ilegítima'], c:1, exp:'Un modelo entrenado con datos no representativos puede reproducir y amplificar sesgos históricos, generando discriminación algorítmica.'},
+  {q:'Un usuario solicita la eliminación de sus datos, pero la empresa decide conservarlos 5 años "por si acaso fueran útiles". ¿Qué derecho está vulnerando?', opts:['Derecho de acceso','Derecho a la portabilidad','Derecho de supresión','Derecho a la limitación del tratamiento'], c:2, exp:'Salvo que exista una base legal específica para conservarlos, negarse a borrar los datos vulnera el derecho de supresión.'},
+  {q:'Una app de salud mental etiqueta como "casos de riesgo" a usuarios con determinadas conductas, sin explicar el criterio del algoritmo. ¿Qué principio debería haberse aplicado?', opts:['Minimización de datos','Privacidad por defecto','Transparencia en la toma de decisiones automatizadas','Exactitud de los datos'], c:2, exp:'Cuando un algoritmo clasifica o etiqueta personas, el RGPD exige poder explicar la lógica de esa decisión automatizada.'},
+  {q:'Una plataforma educativa ofrece acceso gratuito a niños de 12 años y recoge datos de rendimiento académico sin autorización de los padres. ¿Se cumple el RGPD?', opts:['Sí, los menores pueden consentir libremente a partir de los 10 años','No, en general se requiere el consentimiento de padres o tutores para menores por debajo de la edad mínima fijada','Sí, si el tratamiento no incluye perfiles','No, porque está prohibido tratar datos de menores en cualquier caso'], c:1, exp:'Por debajo de la edad mínima de consentimiento digital (que cada Estado puede fijar entre 13 y 16 años), se necesita el consentimiento de quienes ejercen la patria potestad o tutela.'}
+];
+
+var quizQs = [];
+var userAns = {};
+var evaluated = false;
+var quizContent = document.getElementById('quiz-content');
+
+function shuffleArr(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var r = Math.floor(Math.random()*(i+1));
+    var tmp = a[i]; a[i]=a[r]; a[r]=tmp;
+  }
+  return a;
+}
+
+function generateQuiz(){
+  quizQs = shuffleArr(allQ).slice(0,10);
+  userAns = {};
+  evaluated = false;
+  buildQuiz();
+}
+
+function buildQuiz(){
+  var answered = Object.keys(userAns).length;
+  var pct = Math.round((answered/quizQs.length)*100);
+  var h = '<div class="qz-head">' +
+    '<span class="qz-info">'+quizQs.length+' preguntas</span>' +
+    '<div class="qz-bar"><div class="qz-fill" style="width:'+pct+'%"></div></div>' +
+    '<span class="qz-info">'+answered+'/'+quizQs.length+' respondidas</span>' +
+  '</div>';
+
+  var L = ['1','2','3','4'];
+  for(var qi=0; qi<quizQs.length; qi++){
+    var q = quizQs[qi];
+    h += '<div class="qz-card"><div class="qz-num">Pregunta '+(qi+1)+'</div><div class="qz-txt">'+q.q+'</div><div class="qz-opts">';
+    for(var oi=0; oi<q.opts.length; oi++){
+      var cls = 'qz-opt';
+      if(evaluated){
+        if(oi === q.c && userAns[qi] === oi){ cls += ' ok'; }
+        else if(oi === q.c){ cls += ' show'; }
+        else if(oi === userAns[qi]){ cls += ' bad'; }
+      } else if(userAns[qi] === oi){ cls += ' sel'; }
+      h += '<div class="'+cls+'" data-qi="'+qi+'" data-oi="'+oi+'"><div class="opt-l">'+L[oi]+'</div><div class="opt-t">'+q.opts[oi]+'</div></div>';
+    }
+    h += '</div></div>';
+  }
+
+  if(!evaluated){
+    h += '<div class="qz-acts"><button class="btn-p" id="evalBtn">Evaluar</button><button class="btn-s" id="newRoundBtn">Nueva ronda</button></div>';
+  } else {
+    var correct = 0;
+    var fb = '';
+    for(var k=0;k<quizQs.length;k++){
+      var item = quizQs[k];
+      var ok = userAns[k] === item.c;
+      if(ok){ correct++; }
+      fb += '<div class="fb-item '+(ok?'fb-ok':'fb-bad')+'"><div class="fb-q">'+(k+1)+'. '+item.q+'</div>';
+      if(ok){ fb += '<div class="fb-c">&#10003; Correcto: '+item.opts[item.c]+'</div>'; }
+      else {
+        var chosenText = (userAns[k] !== undefined) ? item.opts[userAns[k]] : 'Sin respuesta';
+        fb += '<div class="fb-w">&#10007; Tu respuesta: '+chosenText+'</div>';
+        fb += '<div class="fb-corr">&#10003; Respuesta correcta: '+item.opts[item.c]+'</div>';
+      }
+      fb += '<div class="fb-exp">'+item.exp+'</div></div>';
+    }
+    var p = Math.round((correct/quizQs.length)*100);
+    var msg = '';
+    if(p >= 80){ msg = 'Excelente. Dominas el origen, las definiciones y la regulación de la privacidad.'; }
+    else if(p >= 60){ msg = 'Bien. Repasa los casos reales y las flashcards para afinar detalles.'; }
+    else { msg = 'Vale la pena repasar el resumen y las flashcards antes de volver a intentarlo.'; }
+    h += '<div class="qz-result"><span class="qr-stamp">Ronda completada</span><div class="res-score">'+correct+'/'+quizQs.length+'</div><div class="res-lbl">'+p+'% de aciertos</div><div class="res-msg">'+msg+'</div></div>' + fb + '<div class="qz-acts"><button class="btn-s" id="newRoundBtn">Nueva ronda &#8594;</button></div>';
+  }
+  quizContent.innerHTML = h;
+}
+
+quizContent.addEventListener('click', function(e){
+  var optEl = e.target.closest ? e.target.closest('.qz-opt') : null;
+  if(optEl && !evaluated){
+    var qi = parseInt(optEl.getAttribute('data-qi'),10);
+    var oi = parseInt(optEl.getAttribute('data-oi'),10);
+    userAns[qi] = oi;
+    buildQuiz();
+    return;
+  }
+  if(e.target.id === 'evalBtn'){
+    if(Object.keys(userAns).length === 0){ alert('Marca al menos una respuesta antes de evaluar.'); return; }
+    evaluated = true;
+    buildQuiz();
+    var wrap = document.getElementById('quizWrap');
+    if(wrap){ window.scrollTo({top: wrap.getBoundingClientRect().top + window.scrollY - 90, behavior:'smooth'}); }
+    return;
+  }
+  if(e.target.id === 'newRoundBtn'){
+    generateQuiz();
+    return;
+  }
+});
+
+generateQuiz();
+</script>
+</body>
+</html>

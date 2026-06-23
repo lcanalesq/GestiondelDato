@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tema 9 · Big Data y Protección de Datos</title>
+<style>
+  :root{
+    --azul: #0e7cb5;
+    --azul-oscuro: #0a5a86;
+    --azul-claro: #e8f4fb;
+    --gris-fondo: #f5f7fa;
+    --gris-texto: #2b2f33;
+    --gris-suave: #6b7280;
+    --verde: #1f9d55;
+    --rojo: #d64545;
+    --amarillo: #e0a82e;
+    --borde: #dde3ea;
+    --blanco: #ffffff;
+    --sombra: 0 2px 8px rgba(20,40,60,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:var(--gris-fondo);
+    color:var(--gris-texto);
+    display:flex;
+    min-height:100vh;
+  }
+  /* SIDEBAR */
+  #sidebar{
+    width:280px;
+    background:linear-gradient(180deg, var(--azul-oscuro), var(--azul));
+    color:white;
+    flex-shrink:0;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    overflow-y:auto;
+    padding:20px 0 30px;
+    z-index:50;
+    transition: transform 0.25s ease;
+  }
+  #sidebar h1{
+    font-size:1.05rem;
+    padding:0 20px 16px;
+    margin:0 0 10px;
+    border-bottom:1px solid rgba(255,255,255,0.2);
+    line-height:1.4;
+  }
+  #sidebar h1 span{display:block;font-size:0.75rem;font-weight:400;opacity:0.8;margin-top:4px;}
+  .nav-section{margin-bottom:6px;}
+  .nav-btn{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:white;
+    padding:12px 20px;
+    font-size:0.88rem;
+    cursor:pointer;
+    opacity:0.85;
+    transition:background 0.15s;
+  }
+  .nav-btn:hover{background:rgba(255,255,255,0.1);opacity:1;}
+  .nav-btn.active{background:rgba(255,255,255,0.18);opacity:1;font-weight:600;border-left:4px solid #ffd166;}
+  .nav-icon{font-size:1.1rem;width:22px;text-align:center;}
+  #menu-toggle{
+    display:none;
+    position:fixed;
+    top:14px; left:14px;
+    z-index:100;
+    background:var(--azul-oscuro);
+    color:white;
+    border:none;
+    border-radius:8px;
+    width:42px;height:42px;
+    font-size:1.3rem;
+    cursor:pointer;
+    box-shadow:var(--sombra);
+  }
+  /* MAIN */
+  #main{
+    margin-left:280px;
+    flex:1;
+    padding:30px 40px 80px;
+    max-width:980px;
+  }
+  .view{display:none;animation:fadeIn 0.25s ease;}
+  .view.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);}}
+
+  h2.section-title{
+    color:var(--azul-oscuro);
+    font-size:1.6rem;
+    margin-bottom:4px;
+    border-bottom:3px solid var(--azul);
+    padding-bottom:10px;
+  }
+  .subtitle{color:var(--gris-suave); margin-top:0; margin-bottom:24px; font-size:0.95rem;}
+
+  /* HOME */
+  .home-hero{
+    background:linear-gradient(135deg, var(--azul), var(--azul-oscuro));
+    color:white;
+    padding:36px;
+    border-radius:16px;
+    margin-bottom:28px;
+  }
+  .home-hero h2{margin:0 0 8px; font-size:1.8rem;}
+  .home-hero p{margin:0; opacity:0.92; line-height:1.5;}
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+    gap:16px;
+    margin-top:10px;
+  }
+  .home-card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:var(--sombra);
+    border:1px solid var(--borde);
+    cursor:pointer;
+    transition:transform 0.15s, box-shadow 0.15s;
+  }
+  .home-card:hover{transform:translateY(-3px); box-shadow:0 8px 20px rgba(20,40,60,0.13);}
+  .home-card .num{
+    display:inline-block;
+    background:var(--azul-claro);
+    color:var(--azul-oscuro);
+    font-weight:700;
+    font-size:0.8rem;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+  .home-card h3{margin:0 0 6px; font-size:1.05rem; color:var(--gris-texto);}
+  .home-card p{margin:0; font-size:0.85rem; color:var(--gris-suave); line-height:1.4;}
+
+  /* CONTENT BLOCKS */
+  .case-box{
+    background:#fff9e8;
+    border-left:5px solid var(--amarillo);
+    padding:16px 20px;
+    border-radius:10px;
+    margin:18px 0;
+  }
+  .case-box .case-label{
+    font-weight:700;
+    color:#9a6b00;
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .case-box p{margin:6px 0; line-height:1.55; font-size:0.95rem;}
+
+  .concept-box{
+    background:white;
+    border:1px solid var(--borde);
+    border-radius:12px;
+    padding:18px 22px;
+    margin:16px 0;
+    box-shadow:var(--sombra);
+  }
+  .concept-box h4{
+    margin:0 0 10px;
+    color:var(--azul-oscuro);
+    font-size:1.02rem;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .concept-box ul{margin:8px 0; padding-left:22px;}
+  .concept-box li{margin-bottom:6px; line-height:1.5; font-size:0.94rem;}
+  .concept-box p{line-height:1.55; font-size:0.94rem; margin:8px 0;}
+
+  .key-takeaway{
+    background:var(--azul-claro);
+    border-radius:12px;
+    padding:16px 20px;
+    margin:18px 0;
+    border-left:5px solid var(--azul);
+  }
+  .key-takeaway .kt-label{
+    font-weight:700;
+    color:var(--azul-oscuro);
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:6px;
+  }
+  .key-takeaway p{margin:4px 0; line-height:1.5; font-size:0.94rem;}
+
+  .principle-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:12px;
+    margin:18px 0;
+  }
+  .principle-card{
+    background:white;
+    border:2px solid var(--borde);
+    border-radius:12px;
+    padding:14px 16px;
+    transition:border-color 0.15s;
+  }
+  .principle-card:hover{border-color:var(--azul);}
+  .principle-card .pnum{
+    display:inline-flex;
+    align-items:center;justify-content:center;
+    width:26px;height:26px;
+    background:var(--azul);
+    color:white;
+    border-radius:50%;
+    font-size:0.78rem;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .principle-card h5{margin:4px 0 6px; font-size:0.92rem; color:var(--gris-texto);}
+  .principle-card p{margin:0; font-size:0.82rem; color:var(--gris-suave); line-height:1.4;}
+
+  .verdict-yes{color:var(--verde); font-weight:700;}
+  .verdict-no{color:var(--rojo); font-weight:700;}
+
+  .nav-buttons{
+    display:flex;
+    justify-content:space-between;
+    margin-top:32px;
+    padding-top:20px;
+    border-top:1px solid var(--borde);
+  }
+  .nav-buttons button{
+    background:var(--azul);
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:0.88rem;
+    cursor:pointer;
+    transition:background 0.15s;
+  }
+  .nav-buttons button:hover{background:var(--azul-oscuro);}
+  .nav-buttons button:disabled{background:var(--borde); color:var(--gris-suave); cursor:default;}
+
+  /* FLASHCARDS */
+  .fc-wrap{display:flex; flex-direction:column; align-items:center; padding:10px 0;}
+  .fc-progress{font-size:0.85rem; color:var(--gris-suave); margin-bottom:16px;}
+  .flashcard{
+    width:100%;
+    max-width:600px;
+    min-height:260px;
+    background:white;
+    border-radius:18px;
+    box-shadow:0 6px 24px rgba(20,40,60,0.14);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px;
+    cursor:pointer;
+    position:relative;
+    border:1px solid var(--borde);
+  }
+  .flashcard .fc-tag{
+    position:absolute;
+    top:16px; left:20px;
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--azul);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .flashcard .fc-hint{
+    position:absolute;
+    bottom:14px; right:18px;
+    font-size:0.72rem;
+    color:var(--gris-suave);
+  }
+  .flashcard .fc-text{font-size:1.08rem; line-height:1.55;}
+  .flashcard.flipped .fc-text{color:var(--azul-oscuro); font-weight:500;}
+  .fc-controls{display:flex; gap:14px; margin-top:22px; align-items:center;}
+  .fc-controls button{
+    background:white;
+    border:1px solid var(--borde);
+    width:42px;height:42px;
+    border-radius:50%;
+    font-size:1.1rem;
+    cursor:pointer;
+    box-shadow:var(--sombra);
+  }
+  .fc-controls button:hover{background:var(--azul-claro);}
+  .fc-controls .fc-flip-btn{
+    width:auto; height:auto; border-radius:8px; padding:10px 22px;
+    background:var(--azul); color:white; border:none; font-size:0.88rem; font-weight:600;
+  }
+  .fc-controls .fc-flip-btn:hover{background:var(--azul-oscuro);}
+  .fc-deck-select{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px;
+  }
+  .fc-deck-select button{
+    background:white; border:1px solid var(--borde); padding:7px 14px;
+    border-radius:20px; font-size:0.8rem; cursor:pointer; color:var(--gris-texto);
+  }
+  .fc-deck-select button.active{background:var(--azul); color:white; border-color:var(--azul);}
+
+  /* QUIZ */
+  .quiz-wrap{max-width:680px; margin:0 auto;}
+  .quiz-progress-bar{
+    height:8px; background:var(--borde); border-radius:6px; overflow:hidden; margin-bottom:24px;
+  }
+  .quiz-progress-fill{height:100%; background:var(--azul); width:0%; transition:width 0.3s;}
+  .quiz-question{
+    background:white; border-radius:14px; padding:26px; box-shadow:var(--sombra);
+    border:1px solid var(--borde); margin-bottom:18px;
+  }
+  .quiz-question .qcase{
+    background:#fff9e8; border-radius:8px; padding:10px 14px; font-size:0.85rem;
+    margin-bottom:14px; color:#7a5800; line-height:1.45;
+  }
+  .quiz-question h4{margin:0 0 16px; font-size:1.05rem; line-height:1.45; color:var(--gris-texto);}
+  .quiz-options{display:flex; flex-direction:column; gap:10px;}
+  .quiz-option{
+    background:var(--gris-fondo); border:2px solid var(--borde); border-radius:10px;
+    padding:13px 16px; text-align:left; cursor:pointer; font-size:0.92rem; transition:all 0.15s;
+  }
+  .quiz-option:hover{border-color:var(--azul);}
+  .quiz-option.selected{border-color:var(--azul); background:var(--azul-claro);}
+  .quiz-option.correct{border-color:var(--verde); background:#e8f8ee; font-weight:600;}
+  .quiz-option.incorrect{border-color:var(--rojo); background:#fbe9e9;}
+  .quiz-option:disabled{cursor:default;}
+  .quiz-feedback{
+    margin-top:14px; padding:12px 16px; border-radius:8px; font-size:0.88rem; line-height:1.5;
+  }
+  .quiz-feedback.correct{background:#e8f8ee; color:#176b3a; border-left:4px solid var(--verde);}
+  .quiz-feedback.incorrect{background:#fbe9e9; color:#8c2c2c; border-left:4px solid var(--rojo);}
+  .quiz-next-btn{
+    background:var(--azul); color:white; border:none; padding:11px 24px; border-radius:8px;
+    font-size:0.9rem; cursor:pointer; margin-top:6px; font-weight:600;
+  }
+  .quiz-next-btn:hover{background:var(--azul-oscuro);}
+  .quiz-result{
+    text-align:center; background:white; border-radius:16px; padding:40px; box-shadow:var(--sombra);
+  }
+  .quiz-result .score-circle{
+    width:130px;height:130px; border-radius:50%; background:var(--azul-claro);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+    font-size:2rem; font-weight:700; color:var(--azul-oscuro); border:6px solid var(--azul);
+  }
+  .quiz-start-btn{
+    background:var(--azul); color:white; border:none; padding:13px 28px; border-radius:10px;
+    font-size:0.95rem; cursor:pointer; font-weight:600; display:block; margin:16px auto 0;
+  }
+  .quiz-start-btn:hover{background:var(--azul-oscuro);}
+
+  @media (max-width: 880px){
+    #sidebar{transform:translateX(-100%);}
+    #sidebar.open{transform:translateX(0);}
+    #menu-toggle{display:flex; align-items:center; justify-content:center;}
+    #main{margin-left:0; padding:70px 18px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<button id="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+<nav id="sidebar">
+  <h1>Tema 9<span>Big Data y Protección de Datos</span></h1>
+  <div class="nav-section" id="nav-buttons"></div>
+</nav>
+
+<main id="main">
+  <!-- Las vistas se inyectan aquí -->
+  <div id="views-container">
+
+  <!-- ===================== HOME ===================== -->
+  <div class="view active" id="view-home">
+    <div class="home-hero">
+      <h2>🛡️ Tema 9 · Big Data y Protección de Datos</h2>
+      <p>Este tema es distinto a los demás: no va de tecnología, va de <strong>responsabilidad y derechos</strong>. La buena noticia es que casi todo se entiende a través de 8 casos reales. Si entiendes los casos, entiendes el RGPD aplicado a Big Data e IA.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>💡 La idea que lo resume todo</h4>
+      <p>Cuantos más datos manejas y más "inteligente" es tu sistema (Big Data, IA, perfilado), <strong>más fácil es violar sin querer los derechos de las personas</strong>. El RGPD no prohíbe usar datos: exige que lo hagas con <strong>transparencia, proporción y responsabilidad demostrable</strong>.</p>
+    </div>
+
+    <h3 style="color:var(--azul-oscuro); margin-top:30px;">Recorrido por bloques</h3>
+    <p class="subtitle" style="margin-top:-6px;">Haz clic en cualquier bloque para estudiarlo en detalle.</p>
+
+    <div class="card-grid">
+      <div class="home-card" onclick="goTo('b1')">
+        <span class="num">Bloque 1</span>
+        <h3>🛡️ Los 7 Principios del RGPD</h3>
+        <p>El mapa general. Caso: la app de citas "i-doctor-love" que grababa conversaciones sin avisar.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b2')">
+        <span class="num">Bloque 2</span>
+        <h3>✅ Consentimiento e Interés Legítimo</h3>
+        <p>¿Cuándo puedo usar datos sin pedir permiso? Caso: SkyProjects y sus 10 millones de clientes.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b3')">
+        <span class="num">Bloque 3</span>
+        <h3>🎯 Finalidad y Test de Compatibilidad</h3>
+        <p>¿Puedo usar datos para algo distinto de lo que dije? Caso: Ventas Reunidas y su herramienta BI.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b4')">
+        <span class="num">Bloque 4</span>
+        <h3>🌐 Fuentes Externas y Scraping</h3>
+        <p>"Si está en internet, es mío" → falso. Caso: Brain Tech y la predicción de infartos.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b5')">
+        <span class="num">Bloque 5</span>
+        <h3>📉 Minimización y Exactitud</h3>
+        <p>Recopilar y guardar solo lo necesario. Casos: Black Tech y el examen bloqueado de Luis Fernández.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b6')">
+        <span class="num">Bloque 6</span>
+        <h3>☁️ Seguridad, Nube y Encargados</h3>
+        <p>El pendrive de ayer es la nube de hoy. Caso: TechNova y la fuga de nóminas.</p>
+      </div>
+      <div class="home-card" onclick="goTo('b7')">
+        <span class="num">Bloque 7</span>
+        <h3>🤖 IA, Responsable y Derechos</h3>
+        <p>¿Quién manda en un sistema de IA? Caso: BioDataCare y el hospital que no avisó.</p>
+      </div>
+      <div class="home-card" onclick="goTo('flashcards')" style="background:var(--azul-claro); border:2px dashed var(--azul);">
+        <span class="num">Práctica</span>
+        <h3>🗂️ Flashcards</h3>
+        <p>Repasa caso por caso con tarjetas de memoria activa.</p>
+      </div>
+      <div class="home-card" onclick="goTo('quiz')" style="background:#fff9e8; border:2px dashed var(--amarillo);">
+        <span class="num">Evaluación</span>
+        <h3>📝 Quiz</h3>
+        <p>Pon a prueba si sabes identificar qué principio se incumple en cada caso.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 1 ===================== -->
+  <div class="view" id="view-b1">
+    <h2 class="section-title">🛡️ Bloque 1 · Los 7 Principios del RGPD</h2>
+    <p class="subtitle">El núcleo de todo el tema. Todo lo demás son aplicaciones de estos principios.</p>
+
+    <div class="concept-box">
+      <h4>📌 Idea de partida</h4>
+      <p>Los principios de protección de datos deben mantenerse <strong>siempre presentes</strong>, con el foco puesto en la persona. Son <strong>transversales</strong>: aplican a todo tipo de tratamiento, sin importar la tecnología (tradicional, Big Data o IA). Son el núcleo central del RGPD.</p>
+    </div>
+
+    <h3 style="color:var(--azul-oscuro);">Los 7 principios (memorízalos como un círculo, no como una lista)</h3>
+    <div class="principle-grid">
+      <div class="principle-card"><span class="pnum">1</span><h5>Licitud, lealtad y transparencia</h5><p>Tratar datos con base legal válida, sin engañar y siendo claro con la persona.</p></div>
+      <div class="principle-card"><span class="pnum">2</span><h5>Limitación de la finalidad</h5><p>Los datos se recogen para un fin concreto; no se usan libremente para otra cosa.</p></div>
+      <div class="principle-card"><span class="pnum">3</span><h5>Minimización de datos</h5><p>Solo se recopila lo estrictamente necesario para ese fin.</p></div>
+      <div class="principle-card"><span class="pnum">4</span><h5>Exactitud</h5><p>Los datos deben mantenerse correctos y actualizados.</p></div>
+      <div class="principle-card"><span class="pnum">5</span><h5>Limitación del plazo de conservación</h5><p>No se guardan más tiempo del necesario.</p></div>
+      <div class="principle-card"><span class="pnum">6</span><h5>Integridad y confidencialidad (Seguridad)</h5><p>Proteger los datos frente a accesos no autorizados, pérdidas o fugas.</p></div>
+      <div class="principle-card"><span class="pnum">7</span><h5>Responsabilidad proactiva</h5><p>La organización debe poder demostrar que cumple, no solo decir que cumple.</p></div>
+    </div>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — App de citas "i-doctor-love"</div>
+      <p><strong>Los hechos:</strong> App de citas con sede en Suiza, dirigida a la UE. Usa IA para analizar perfiles y conectar personas afines. De forma <strong>aleatoria</strong>, graba conversaciones a través del micrófono del smartphone. Un equipo de psicólogos analiza esas grabaciones para mejorar los emparejamientos. <strong>No informan de esto</strong> en su política de privacidad, deliberadamente. Además, han sufrido <strong>brechas de seguridad que ocultan</strong>.</p>
+      <p><strong>Pregunta del caso:</strong> ¿Qué principios de protección de datos no se están cumpliendo?</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔍 Resolución: los 5 principios incumplidos</h4>
+      <ul>
+        <li><strong>1. Licitud, lealtad y transparencia:</strong> no informan de las grabaciones, no hay consentimiento válido ni otra base legal. Ausencia total de transparencia.</li>
+        <li><strong>2. Limitación de la finalidad:</strong> las grabaciones son una finalidad nueva, no contemplada originalmente. No puede ampararse en el consentimiento inicial de la app: se "fuerza" la finalidad.</li>
+        <li><strong>3. Minimización de datos:</strong> recaban conversaciones completas, que exceden lo estrictamente necesario para la finalidad declarada (encontrar pareja).</li>
+        <li><strong>4. Integridad y confidencialidad (Seguridad):</strong> existen brechas de seguridad conocidas y no corregidas; datos de usuarios y tarjetas de crédito comprometidos.</li>
+        <li><strong>5. Responsabilidad proactiva:</strong> la organización conoce los incumplimientos y no actúa para corregirlos. No hay gestión de riesgos.</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Conclusión clave</div>
+      <p>El incumplimiento de un principio <strong>suele arrastrar otros</strong>. En este caso: falta de transparencia → ilegitimidad → exceso de datos → inseguridad. Los afectados siempre tienen derecho a ser informados (Arts. 13 y 14 RGPD), sin importar cuál sea la base legal usada.</p>
+    </div>
+
+    <h3 style="color:var(--azul-oscuro); margin-top:28px;">Las obligaciones formales que también incumplieron</h3>
+    <div class="concept-box">
+      <h4>📋 Más allá de los principios: obligaciones concretas</h4>
+      <ul>
+        <li><strong>Medidas técnicas y organizativas (Art. 24):</strong> no aplicaron Privacidad desde el Diseño (<em>Privacy by Design</em>) ni Privacidad por Defecto (<em>Privacy by Default</em>).</li>
+        <li><strong>Evaluación de impacto (EIPD/DPIA):</strong> no se realizó, ni se consultó a la Autoridad de Control. El Registro de Actividades de Tratamiento no está confirmado.</li>
+        <li><strong>Seguridad e incidentes (Arts. 33 y 34):</strong> no notificaron las brechas ni a la Autoridad de Control ni a los afectados.</li>
+        <li><strong>Derecho de información (Arts. 12, 13 y 14):</strong> los usuarios desconocen que sus conversaciones son grabadas y analizadas.</li>
+        <li><strong>Ejercicio de derechos:</strong> si un usuario pidiera acceso a sus datos, probablemente no recibiría la información completa (grabaciones omitidas a propósito).</li>
+      </ul>
+      <p><strong>Conclusión:</strong> no es solo un problema ético, es una vulneración sistemática del RGPD que combina principios + obligaciones formales.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🏛️ Las 4 obligaciones-pilar del RGPD (visión general)</h4>
+      <ul>
+        <li>Aplicar medidas técnicas y organizativas para cumplir el RGPD (<strong>Art. 24</strong>).</li>
+        <li>Tener un representante en la UE si la organización no está establecida en la UE (<strong>Art. 27</strong>).</li>
+        <li>Nombrar un Delegado de Protección de Datos cuando corresponda (<strong>Art. 37</strong>).</li>
+        <li>Atender a las Autoridades de Control (<strong>Art. 31</strong>).</li>
+      </ul>
+    </div>
+
+    <div class="nav-buttons">
+      <button disabled>← Anterior</button>
+      <button onclick="goTo('b2')">Siguiente: Consentimiento e Interés Legítimo →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 2 ===================== -->
+  <div class="view" id="view-b2">
+    <h2 class="section-title">✅ Bloque 2 · Consentimiento e Interés Legítimo</h2>
+    <p class="subtitle">Las dos bases legales más relevantes para Big Data e IA.</p>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — SkyProjects</div>
+      <p><strong>Los hechos:</strong> SkyProjects tiene una base de datos con registros de compras de <strong>más de 10.000.000 de clientes</strong> de los últimos 15 años. Quieren usar esos datos para perfilar clientes, recuperar clientes perdidos y maximizar ventas en clientes activos. Ven complicado solicitar el consentimiento a tanta gente, así que la Dirección General ha oído que el <strong>interés legítimo</strong> permite hacerlo.</p>
+      <p><strong>Pregunta del caso:</strong> ¿Qué opinas? ¿Es tan sencillo como creen?</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚠️ Por qué Big Data + IA son especialmente delicados</h4>
+      <ul>
+        <li>La <strong>creación de perfiles</strong> es especialmente intrusiva: no solo se manejan datos, se genera información nueva sobre conductas y comportamientos.</li>
+        <li>Big Data e IA tienden a ser complejos → la <strong>complejidad y la transparencia se llevan mal</strong>: es difícil explicar algo complicado de forma clara.</li>
+        <li>Riesgo: se omite información relevante por dificultad de explicarla o por simple conveniencia.</li>
+        <li>El consentimiento puede quedar <strong>viciado (inválido)</strong> si no está suficientemente informado.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>✅ El Consentimiento como base legal</h4>
+      <p>Es una vía fundamental para legitimar un tratamiento de datos. Funciona como un <strong>contrato</strong>: el afectado acepta conociendo el alcance real del tratamiento.</p>
+      <ul>
+        <li>Debe estar <strong>plenamente informado</strong>; si falta información, el consentimiento es inválido.</li>
+        <li>En el sector público o en relaciones laborales, la <strong>ley</strong> puede ser la base legal directa → no se requiere consentimiento expreso, pero sí el deber de informar.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚖️ El Interés Legítimo como base legal</h4>
+      <p>El RGPD reconoce que algunas organizaciones tienen intereses legítimos válidos que pueden ser conciliables con los derechos de los afectados. Permite <strong>prescindir del consentimiento</strong> si se cumplen ciertas condiciones.</p>
+      <ul>
+        <li>Requiere <strong>ponderar dos intereses en competencia</strong>: el interés de la organización vs. los derechos fundamentales de los afectados.</li>
+        <li>El beneficio para la organización <strong>no debe superar</strong> el perjuicio o riesgo para el afectado.</li>
+        <li>En perfilado masivo (como el caso SkyProjects), el nivel de intrusión es alto → debe evaluarse con <strong>especial rigor y cautela</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>✔️ Ámbitos donde SÍ se acepta el interés legítimo</h4>
+      <ul>
+        <li>Ejercicio de la libertad de expresión e información.</li>
+        <li>Prospección comercial <strong>convencional</strong> (no automatizada ni digital) — existen mecanismos como las <strong>Listas Robinson</strong> para exclusión voluntaria.</li>
+        <li>Ejecución de derechos en procedimientos judiciales.</li>
+        <li>Prevención del fraude y del blanqueo de capitales.</li>
+        <li>Supervisión de empleados con fines de seguridad o gestión.</li>
+        <li>Regímenes internos de denuncia de irregularidades (<em>whistleblowing</em>).</li>
+        <li>Seguridad física de instalaciones o personas.</li>
+        <li>Tratamiento con fines históricos, científicos, estadísticos o de investigación.</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">📢 Regla que nunca cambia</div>
+      <p>Usar el interés legítimo <strong>NO exime</strong> del deber de información al afectado. Siempre hay que informar la finalidad del tratamiento y la base legal usada. Si es interés legítimo, hay que explicar cuáles son esos intereses.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>📊 La relación riesgo-viabilidad (la clave del caso SkyProjects)</h4>
+      <p>A <strong>menor riesgo</strong> generado → mayor viabilidad de usar el interés legítimo. A <strong>mayor riesgo</strong> → menor viabilidad, porque la ponderación se inclina hacia el perjuicio del afectado.</p>
+      <p><strong>Criterio clave:</strong> solo es válido aplicar el interés legítimo cuando el riesgo para los derechos y libertades de los afectados <strong>NO es significativo</strong>. El perfilado de personas (<em>profiling</em>), por su naturaleza intrusiva, normalmente <span class="verdict-no">NO entra</span> en esa categoría de bajo riesgo.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso SkyProjects</div>
+      <p>No es tan simple como "usamos interés legítimo y ya". Perfilar a 10 millones de clientes para maximizar ventas es un tratamiento <strong>altamente intrusivo</strong>. Requiere un <strong>análisis de riesgo documentado y riguroso</strong> antes de decidir — no es un atajo automático al consentimiento. Usarlo de forma laxa para justificar perfilado masivo es un <strong>error sustancial</strong>.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b1')">← Anterior: Los 7 Principios</button>
+      <button onclick="goTo('b3')">Siguiente: Finalidad y Compatibilidad →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 3 ===================== -->
+  <div class="view" id="view-b3">
+    <h2 class="section-title">🎯 Bloque 3 · Limitación de la Finalidad y Test de Compatibilidad</h2>
+    <p class="subtitle">¿Puedo darle un nuevo uso a datos que ya tengo? A veces sí, pero hay que demostrarlo.</p>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — Ventas Reunidas</div>
+      <p><strong>Los hechos:</strong> Ventas Reunidas tiene registrados más de 1.000.000 de clientes. Han comprado una herramienta de Business Intelligence y han decidido explotar estos datos para hacer análisis de tendencias del negocio. Pero esta finalidad <strong>no fue incluida</strong> cuando se recogieron los datos originalmente.</p>
+      <p><strong>Pregunta del caso:</strong> ¿Esto supone un riesgo de cumplimiento con el RGPD?</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>✅ El Test de Compatibilidad</h4>
+      <p>El RGPD permite, bajo ciertas condiciones, dar <strong>nuevos usos</strong> a datos recabados previamente con otra finalidad. No es automático ni "todo vale": hay que aplicar un test de compatibilidad. Para que el nuevo tratamiento sea compatible debe cumplir <strong>dos condiciones</strong>:</p>
+      <ul>
+        <li>Estar dentro de las <strong>expectativas razonables</strong> del afectado al dar sus datos.</li>
+        <li><strong>No generar riesgos adicionales</strong> para el afectado.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔑 Las 4 preguntas clave del test</h4>
+      <ul>
+        <li>¿El interesado puede <strong>razonablemente esperar</strong> este nuevo uso de sus datos?</li>
+        <li>¿Es algo <strong>natural y comprensible</strong>, dentro de la práctica habitual?</li>
+        <li>¿Es <strong>razonable</strong> utilizar los datos para esa nueva finalidad?</li>
+        <li>¿Ese nuevo uso <strong>aumenta el impacto del riesgo</strong> para el afectado?</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--azul-oscuro); margin-top:24px;">El contraste que resuelve el caso: tendencias vs. perfiles</h3>
+
+    <div class="concept-box" style="border-left:5px solid var(--verde);">
+      <h4><span class="verdict-yes">✔️ Caso 1 — Foco en tendencias de producto: COMPATIBLE</span></h4>
+      <p>Usar datos comerciales de ventas para analizar <strong>tendencias de ventas</strong> es compatible con la finalidad original (atender requerimientos comerciales). Es legítimo porque:</p>
+      <ul>
+        <li>La finalidad sigue alineada con el propósito comercial inicial.</li>
+        <li>No genera un riesgo adicional significativo para los afectados.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box" style="border-left:5px solid var(--rojo);">
+      <h4><span class="verdict-no">❌ Caso 2 — Foco en perfiles de personas: NO COMPATIBLE</span></h4>
+      <p>Si el análisis deja de enfocarse en el producto y se enfoca en las <strong>personas</strong> (edad, hábitos de compra, ubicación, ingresos, etc.), la compatibilidad ya <strong>no se sostiene</strong>. Razón: el perfilado genera un incremento sustancial del riesgo para los derechos y libertades de los afectados.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso Ventas Reunidas</div>
+      <p>Depende del enfoque: si el análisis de tendencias se queda en el <strong>nivel agregado de negocio</strong> (qué productos se venden más, en qué época), probablemente pasa el test. Si empieza a generar <strong>perfiles individuales</strong> de clientes, el riesgo de incumplimiento es alto. <strong>Mismo dato, distinto enfoque → distinto resultado legal.</strong></p>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚠️ Cuando hay datos sensibles, todo se complica</h4>
+      <p>Si existen <strong>datos sensibles</strong> (categorías especiales: salud, religión, orientación, etc.) en el tratamiento, se complica mucho aplicar la compatibilidad de finalidades. Lo mismo pasa con el interés legítimo. En estos casos, <strong>ni uno ni el otro</strong> suelen ser el camino adecuado.</p>
+      <p>Se pueden incorporar <strong>garantías adicionales</strong> para reforzar la justificación: minimizar el acceso a los datos, anonimizar, etc. Cuantas más garantías, mejor se justifica que el nuevo uso no perjudica al afectado.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">⏰ Regla de oro: documentar ANTES, no después</div>
+      <p>No es válido justificar el tratamiento "a posteriori", cuando ya se es requerido por una autoridad. Debe existir un <strong>registro documentado previo</strong>, con la valoración ya realizada en su momento. Hay que poder demostrar: qué análisis se hizo, cómo se decidió, y cómo se defendería ante una autoridad de control.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b2')">← Anterior: Consentimiento e Interés Legítimo</button>
+      <button onclick="goTo('b4')">Siguiente: Fuentes Externas y Scraping →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 4 ===================== -->
+  <div class="view" id="view-b4">
+    <h2 class="section-title">🌐 Bloque 4 · Fuentes Externas de Datos y Web Scraping</h2>
+    <p class="subtitle">El mito más peligroso: "si está en internet, es de libre uso". Es falso.</p>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — Brain Tech</div>
+      <p><strong>Los hechos:</strong> Brain Tech, empresa especializada en Inteligencia Artificial, está desarrollando un sistema capaz de predecir el riesgo de padecer un infarto en los próximos 7 días. Para entrenar su modelo, necesita acceder a <strong>datos de pacientes que no fueron recogidos directamente por ellos</strong>.</p>
+      <p><strong>Pregunta del caso:</strong> ¿Es legítimo usar esos datos de fuentes externas para entrenar su IA?</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔍 Proceso de verificación obligatorio</h4>
+      <p>Antes de usar datos de fuentes externas, hay que:</p>
+      <ul>
+        <li>Evaluar si el nuevo uso es <strong>compatible</strong> con el propósito original de los datos.</li>
+        <li>Recordar: de nada sirve <em>obtener</em> los datos si legalmente no se pueden <em>usar</em> para el fin deseado.</li>
+        <li>Determinar si se necesita reforzar o solicitar un <strong>nuevo consentimiento</strong>.</li>
+      </ul>
+      <p><strong>Clave:</strong> si el afectado, al dar sus datos originalmente (p. ej. en su historial médico), no podía esperar razonablemente que se usaran para entrenar una IA de predicción de infartos, probablemente se requiere nuevo consentimiento.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔎 Due Diligence: el deber de comprobar antes de usar</h4>
+      <p>Si una organización accede a datos personales de otra parte para análisis de Big Data, <strong>necesita practicar la debida diligencia</strong>:</p>
+      <ul>
+        <li>Evaluar si el nuevo procesamiento es <strong>incompatible</strong> con el propósito original para el que se recopilaron los datos.</li>
+        <li>Verificar si necesita buscar un <strong>mayor consentimiento</strong> o proporcionar un nuevo aviso de privacidad.</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">🌐 La misma lógica aplica a Internet</div>
+      <p>Que un dato esté publicado en Internet <strong>NO significa</strong> que se pueda usar libremente. Premisa equivocada y muy común: <em>"si está en Internet, lo puedo usar para lo que quiera"</em> → <span class="verdict-no">FALSO</span>.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🕷️ Límites del Web Scraping</h4>
+      <ul>
+        <li>El scraping <strong>no está prohibido</strong> en sí mismo, pero debe tener base jurídica válida y respetar el RGPD.</li>
+        <li>Que el dato sea público <strong>NO elimina</strong> la obligación de transparencia: hay que informar el origen de los datos obtenidos.</li>
+        <li><strong>No todo uso posterior</strong> es automáticamente compatible con la finalidad original.</li>
+        <li>Especial cuidado con: <strong>perfilado, datos sensibles y datos de menores</strong> → contextos de alto riesgo y muy difíciles de legitimar.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚖️ La doble problemática del scraping</h4>
+      <p>Convergen dos ámbitos legales distintos que hay que vigilar a la vez:</p>
+      <ul>
+        <li><strong>Propiedad intelectual / derechos sobre bases de datos:</strong> cada vez más sitios web incluyen restricciones de scraping en sus términos de uso.</li>
+        <li><strong>Protección de datos (RGPD):</strong> aplican las mismas exigencias de compatibilidad, transparencia y consentimiento que con cualquier otra fuente.</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso Brain Tech</div>
+      <p>No basta con que los datos médicos existan en algún sistema externo. Brain Tech debe comprobar si los pacientes, al entregar sus datos originalmente (por ejemplo en un hospital), podían esperar razonablemente que se usaran para entrenar una IA externa de predicción de infartos. Si no es así, <strong>necesita una nueva base legal o consentimiento</strong>, además de cumplir due diligence sobre la fuente de los datos.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b3')">← Anterior: Finalidad y Compatibilidad</button>
+      <button onclick="goTo('b5')">Siguiente: Minimización y Exactitud →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 5 ===================== -->
+  <div class="view" id="view-b5">
+    <h2 class="section-title">📉 Bloque 5 · Minimización y Exactitud de los Datos</h2>
+    <p class="subtitle">Recopilar menos, retener menos, y mantenerlo todo actualizado.</p>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico 1 — Black Tech</div>
+      <p><strong>Los hechos:</strong> "Más siempre es mejor" — esa es la máxima del director de proyectos tecnológicos de Black Tech. El objetivo es que en cada contacto con el cliente se recopile el <strong>máximo posible</strong> de información para facilitar perfiles más precisos (aprovechando conversaciones informales para obtener datos extra: familia, edad de los hijos, fecha de nacimiento...).</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚠️ El problema de "más es mejor"</h4>
+      <ul>
+        <li>Recabar información más allá de lo necesario <strong>viola el principio de minimización</strong>.</li>
+        <li>Pregúntate siempre: <em>¿por qué necesito este dato? ¿para qué finalidad concreta?</em></li>
+        <li><strong>"Por si acaso lo necesito en el futuro" NO es una justificación válida.</strong></li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>💰 El exceso de datos también cuesta dinero</h4>
+      <p>No es solo un tema legal: el exceso de datos genera un <strong>costo económico real</strong>. Requiere tecnología y procesos para gestionar correctamente esa información. Dato curioso: en un estudio de la ICO en Reino Unido, Francia y Alemania, el <strong>72% de empresas</strong> dijo que habían reunido datos que después no utilizaron.</p>
+      <p><strong>Importante:</strong> encontrar una correlación útil <em>después</em> no justifica retrospectivamente haber obtenido el dato en primer lugar.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🕐 Minimización también es retener menos</h4>
+      <p>No solo se recaba más de lo debido; también se <strong>conserva más de lo debido</strong>. El ciclo de vida del dato debe estar vinculado a su finalidad: esa finalidad debe permitir identificar cuándo el tratamiento debe terminar.</p>
+      <ul>
+        <li>Mantener datos durante décadas sin justificación clara es difícil de legitimar.</li>
+        <li>Retener de más complica el <strong>derecho de supresión</strong> ("derecho al olvido").</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso Black Tech</div>
+      <p>La práctica de Black Tech es un <strong>incumplimiento claro de minimización</strong>: recoge datos (familia, edad de hijos) que no tienen relación directa con la finalidad declarada del contacto comercial. Además, daña la transparencia (el cliente no sabe que esos datos "informales" se están registrando) y cuestiona la validez del consentimiento.</p>
+    </div>
+
+    <hr style="border:none; border-top:1px solid var(--borde); margin:32px 0;">
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico 2 — Universidad DataForm y Luis Fernández</div>
+      <p><strong>Los hechos:</strong> La Universidad DataForm gestiona el acceso a exámenes finales mediante un sistema que verifica si el alumno está al corriente de pago de matrícula. <strong>Luis Fernández</strong>, alumno de tercer curso, fue <strong>bloqueado del sistema 2 días antes</strong> de un examen final. El sistema indicaba que había incumplido el pago de la última cuota. En realidad, Luis había pagado y entregado el justificante <strong>3 semanas antes</strong> del bloqueo.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>📌 Principio de Exactitud de los Datos</h4>
+      <ul>
+        <li>Hay implicaciones sobre la <strong>precisión de los datos personales</strong> en todas las etapas: recopilación, análisis y aplicación.</li>
+        <li>Los resultados del análisis de datos pueden <strong>no ser representativos</strong> de la población en su conjunto.</li>
+        <li>Los <strong>sesgos ocultos</strong> en los conjuntos de datos pueden conducir a predicciones inexactas sobre individuos concretos.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔄 ¿Qué exige el RGPD ante datos inexactos?</h4>
+      <ul>
+        <li>Solicitar al afectado que <strong>actualice</strong> su información, o eliminar los datos si ya son manifiestamente inexactos.</li>
+        <li>Mantener datos más tiempo del necesario no solo incumple minimización: <strong>también incumple exactitud</strong> (los datos "envejecen" y dejan de reflejar la realidad).</li>
+        <li>Ejemplo típico de RRHH: un currículo puede considerarse desactualizado tras solo un año.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>📌 Otro ejemplo clásico: ficheros de morosidad</h4>
+      <p>Una deuda notificada permanece registrada aunque el usuario ya la haya cancelado. Esto genera un perjuicio significativo (dificulta el acceso a crédito). Refleja una falla muy común: <strong>rapidez para notificar la deuda, lentitud para notificar su cancelación</strong>.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">⚖️ Principio de diligencia</div>
+      <p>La diligencia debe ser <strong>máxima</strong> cuando el perjuicio potencial es relevante para los derechos del afectado. No basta con proteger los intereses de la organización con rapidez (bloquear el acceso); hay que aplicar la <strong>misma diligencia para corregir errores</strong> que afectan al afectado.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso Luis Fernández</div>
+      <p>Hubo un fallo de <strong>exactitud de los datos</strong>: el sistema no reflejaba el pago real, ya confirmado 3 semanas antes. La universidad fue rápida para bloquear el acceso, pero no tuvo el mismo cuidado en mantener la información actualizada. Esto generó un perjuicio real y tangible (riesgo de perder el examen) por un dato simplemente desactualizado.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b4')">← Anterior: Fuentes Externas y Scraping</button>
+      <button onclick="goTo('b6')">Siguiente: Seguridad y Nube →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 6 ===================== -->
+  <div class="view" id="view-b6">
+    <h2 class="section-title">☁️ Bloque 6 · Seguridad, Nube y Encargados de Tratamiento</h2>
+    <p class="subtitle">El pendrive perdido de ayer es la nube mal configurada de hoy.</p>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — TechNova S.L.</div>
+      <p><strong>Los hechos:</strong> TechNova S.L. permite a sus responsables de área trabajar en remoto. El responsable de Recursos Humanos utiliza un <strong>pendrive</strong> para transportar documentos de trabajo entre casa y la oficina. El pendrive contenía una copia completa del fichero de nóminas y contratos laborales del personal (datos bancarios, DNI, número de seguridad social, evaluaciones de desempeño). <strong>El pendrive se extravió</strong> en el trayecto al trabajo.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔁 Por qué este caso "anacrónico" sigue siendo súper relevante</h4>
+      <p>Hoy ya no usamos pendrives para esto... pero el mismo riesgo se trasladó a la <strong>nube</strong>. Hoy trabajamos con sincronizaciones y arquitecturas replicadas, lo que genera <strong>copias temporales en múltiples lugares</strong>, a veces sin control adecuado. Sacar datos de su entorno natural de tratamiento (aunque esté autorizado) es riesgoso si el nuevo entorno no tiene medidas de seguridad equivalentes.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>⚠️ Riesgos específicos de seguridad en Big Data y Nube</h4>
+      <ul>
+        <li><strong>Alto nivel de replicación</strong> del almacenamiento (datos duplicados en varios lugares a la vez).</li>
+        <li>La frecuente <strong>externalización</strong> de los análisis aumenta el riesgo de violaciones, fugas de datos y degradación (según ENISA, informe panorama de amenazas Big Data).</li>
+        <li>Es preciso evaluar específicamente los riesgos de Big Data en la nube.</li>
+        <li><strong>Oportunidad:</strong> el propio análisis de Big Data también se puede usar para <em>mejorar</em> la seguridad de la información.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>☁️ Delimitar responsabilidades en la nube (Cloud Risk)</h4>
+      <p>En arquitecturas cloud (IaaS, CaaS, FaaS, NoCode, SaaS...) es clave delimitar quién asume cada riesgo:</p>
+      <ul>
+        <li><strong>Qué corresponde al proveedor</strong> de la nube (vía "acuerdo de nivel de servicio" SLA).</li>
+        <li><strong>Qué corresponde al cliente</strong> (incluyendo la supervisión activa de esos SLAs).</li>
+      </ul>
+      <p>Las organizaciones ya consideran a sus proveedores como <strong>parte de su propio perímetro de seguridad</strong> → esto exige exigirles también medidas de seguridad y cumplimiento normativo.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>📝 Encargados de Tratamiento: contrato y monitoreo real</h4>
+      <ul>
+        <li>Los contratos de encargo de tratamiento deben reflejar claramente las <strong>medidas de seguridad exigidas</strong> al encargado.</li>
+        <li><strong>No basta</strong> con certificaciones o autoevaluaciones del encargado.</li>
+        <li>Se requiere <strong>monitorización proactiva</strong>, con evidencias y pruebas reales (auditorías) de que se cumplen los requerimientos.</li>
+      </ul>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">🚨 Alerta de las autoridades de control</div>
+      <p>Las autoridades ya señalan que <strong>certificaciones y autodiagnósticos NO son suficientes</strong>. En tratamientos de alto riesgo, una monitorización débil puede generar consecuencias serias para el responsable del tratamiento. Se exige mayor proactividad real, no solo cumplimiento documental sobre papel.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Respuesta al caso TechNova</div>
+      <p>El incidente vulnera el principio de <strong>integridad y confidencialidad (seguridad)</strong>: datos altamente sensibles (bancarios, DNI, seguridad social) salieron de su entorno protegido sin medidas equivalentes de seguridad (cifrado, control de acceso). Hoy el mismo error se replica en la nube cuando se sincronizan copias sin control. <strong>El riesgo no desapareció con el pendrive: solo cambió de forma.</strong></p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🤔 Un problema relacionado: ¿quién es controlador y quién es procesador?</h4>
+      <p>El análisis de Big Data puede <strong>dificultar la distinción</strong> entre controladores (responsables) y procesadores (encargados) de datos. Las organizaciones que hacen outsourcing a compañías especializadas en IA y aprendizaje automático deben considerar cuidadosamente <strong>quién tiene control real sobre el procesamiento</strong> de la información personal.</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b5')">← Anterior: Minimización y Exactitud</button>
+      <button onclick="goTo('b7')">Siguiente: IA y Derechos →</button>
+    </div>
+  </div>
+
+  <!-- ===================== BLOQUE 7 ===================== -->
+  <div class="view" id="view-b7">
+    <h2 class="section-title">🤖 Bloque 7 · IA, Responsable del Tratamiento y Derechos</h2>
+    <p class="subtitle">¿Quién manda realmente cuando hay un algoritmo de por medio? Y, ¿cómo se garantizan los derechos de las personas?</p>
+
+    <div class="concept-box">
+      <h4>❓ El problema: en IA, no siempre está claro quién es el responsable</h4>
+      <p>En ciertos entornos, especialmente en Inteligencia Artificial, <strong>no siempre es fácil determinar quién es el responsable del tratamiento</strong>. La pregunta clave es: ¿quién decide sobre la finalidad de los datos?</p>
+      <ul>
+        <li>¿Quién toma realmente las decisiones sobre el tratamiento de datos en un sistema de IA?</li>
+        <li>¿Quién define la finalidad: el desarrollador del modelo, el proveedor, o la organización que lo implementa?</li>
+      </ul>
+      <p><strong>Conclusión:</strong> en contextos de IA, la cadena de responsabilidad puede ser <strong>difusa</strong>. Antes de implementar un sistema de IA, hay que clarificar quién asume el rol de responsable y quién decide la finalidad.</p>
+    </div>
+
+    <div class="case-box">
+      <div class="case-label">📂 Caso práctico — Red hospitalaria BioDataCare</div>
+      <p><strong>Los hechos:</strong> La red hospitalaria BioDataCare firma un convenio con una empresa tecnológica para desarrollar <strong>modelos predictivos de enfermedades crónicas</strong>, utilizando historiales médicos electrónicos, datos de sensores wearables y comportamiento en apps móviles de salud.</p>
+      <p>Los pacientes, al asistir a consultas o ingresar en el hospital, <strong>no son informados</strong> de que sus datos serán usados para proyectos de análisis predictivo, que además implican tratamiento masivo, perfilado y uso con fines de investigación y desarrollo privado. La única referencia está en una "política de privacidad genérica" en la web del hospital, sin que se indique expresamente este tratamiento en los consentimientos iniciales, ni se haya ofrecido un mecanismo claro de oposición.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔍 Lectura del caso BioDataCare con lo aprendido</h4>
+      <ul>
+        <li><strong>Licitud y transparencia:</strong> falta información específica sobre este tratamiento concreto; una "política genérica" no es suficiente.</li>
+        <li><strong>Limitación de la finalidad:</strong> el análisis predictivo con fines de I+D privado es una finalidad nueva, no consentida específicamente.</li>
+        <li><strong>Responsable del tratamiento difuso:</strong> ¿quién decide la finalidad final del modelo, el hospital o la empresa tecnológica? Hay que aclararlo en el convenio.</li>
+        <li><strong>Datos sensibles:</strong> historiales médicos = categoría especial → exige máximo rigor, ni interés legítimo ni compatibilidad de finalidades son caminos fáciles aquí.</li>
+        <li><strong>Falta de mecanismo de oposición:</strong> vulnera el ejercicio de derechos de los pacientes.</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>ℹ️ Derecho de información: cómo debería haberse hecho</h4>
+      <p>El derecho de información debe garantizar un <strong>consentimiento no viciado</strong> por defecto o insuficiencia de información. Para informar bien sobre algo complejo (como un modelo de IA), se recomienda:</p>
+      <ul>
+        <li>Aplicar <strong>enfoques innovadores</strong> para informar: videos, dibujos animados, notificaciones <em>just in time</em>, íconos estandarizados.</li>
+        <li>Combinar varios enfoques ayuda a que información compleja sobre Big Data sea más fácil de entender.</li>
+        <li><strong>Transparencia algorítmica:</strong> esfuerzo importante para explicar lo complejo — efectos, consecuencias y alternativas.</li>
+        <li>Informar de las <strong>categorías de datos que se van a inferir</strong> o agregar por vinculación (no solo los datos que se recogen directamente).</li>
+      </ul>
+    </div>
+
+    <div class="concept-box">
+      <h4>✊ Ejercicio de Derechos de las personas</h4>
+      <p>Las grandes cantidades de datos en Big Data pueden hacer <strong>más difícil</strong> para las organizaciones cumplir con el derecho de acceso y otros derechos del RGPD. Las organizaciones deben contar con <strong>procesos adecuados</strong> para hacer frente a la extensión de los derechos del RGPD respecto a decisiones basadas en procesamiento automatizado.</p>
+    </div>
+
+    <div class="concept-box">
+      <h4>🔐 Centros de privacidad: la tendencia actual</h4>
+      <p>Cada vez más plataformas incorporan herramientas de <strong>autogestión de privacidad</strong>, que permiten al usuario decidir qué información se hace pública o privada. Beneficio doble:</p>
+      <ul>
+        <li><strong>Al usuario:</strong> le da control directo sobre sus propios datos.</li>
+        <li><strong>A la organización:</strong> facilita demostrar que ofrece medios reales para ejercer derechos.</li>
+      </ul>
+      <p>⚠️ Punto pendiente: aún está por comprobar si estas herramientas responden de forma realmente efectiva a las interacciones de los usuarios.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">🏗️ Las arquitecturas deben facilitar los derechos, no obstaculizarlos</div>
+      <p>Las arquitecturas de sistemas deben permitir que los derechos de los afectados se ejecuten de manera real y efectiva. Ir más allá en facilitar esto genera <strong>menos problemas</strong> tanto en la recogida de información (transparencia) como en el ejercicio posterior de derechos.</p>
+    </div>
+
+    <div class="key-takeaway">
+      <div class="kt-label">💡 Conclusión general del Tema 9</div>
+      <p>Big Data e IA no cambian los principios del RGPD: los <strong>amplifican</strong>. Cuanto mayor es la escala, la complejidad y la capacidad predictiva de un sistema, mayor es la exigencia de <strong>transparencia, proporcionalidad, documentación previa y responsabilidad demostrable</strong>. La pregunta que siempre hay que hacerse no es "¿puedo hacerlo técnicamente?" sino "¿puedo justificarlo ante una autoridad de control, con el afectado debidamente informado?".</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button onclick="goTo('b6')">← Anterior: Seguridad y Nube</button>
+      <button onclick="goTo('flashcards')">Ir a Flashcards →</button>
+    </div>
+  </div>
+
+  <!-- ===================== FLASHCARDS ===================== -->
+  <div class="view" id="view-flashcards">
+    <h2 class="section-title">🗂️ Flashcards · Tema 9</h2>
+    <p class="subtitle">Lee el caso o la pregunta, piensa tu respuesta, y dale clic a la tarjeta para revelarla. Usa las flechas para moverte.</p>
+
+    <div class="fc-deck-select" id="fc-deck-select"></div>
+
+    <div class="fc-wrap">
+      <div class="fc-progress" id="fc-progress">Tarjeta 1 de 1</div>
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <span class="fc-tag" id="fc-tag">PREGUNTA</span>
+        <div class="fc-text" id="fc-text">Cargando...</div>
+        <span class="fc-hint">👆 Clic para voltear</span>
+      </div>
+      <div class="fc-controls">
+        <button onclick="prevCard()" title="Anterior">◀</button>
+        <button class="fc-flip-btn" onclick="flipCard()">Voltear tarjeta</button>
+        <button onclick="nextCard()" title="Siguiente">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== QUIZ ===================== -->
+  <div class="view" id="view-quiz">
+    <h2 class="section-title">📝 Quiz · Tema 9</h2>
+    <p class="subtitle">Identifica qué principio, base legal o derecho está en juego en cada caso.</p>
+
+    <div class="quiz-wrap" id="quiz-wrap">
+      <div class="quiz-result" id="quiz-start-screen">
+        <h3 style="color:var(--azul-oscuro); margin-top:0;">¿Listo para poner a prueba lo aprendido?</h3>
+        <p style="color:var(--gris-suave);">El quiz tiene preguntas basadas en los 8 casos del tema, con orden aleatorio cada vez que lo inicias.</p>
+        <button class="quiz-start-btn" onclick="startQuiz()">Comenzar Quiz</button>
+      </div>
+
+      <div id="quiz-active" style="display:none;">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+        <div id="quiz-question-container"></div>
+      </div>
+
+      <div id="quiz-result-screen" style="display:none;">
+        <div class="quiz-result">
+          <div class="score-circle" id="quiz-score-circle">0/0</div>
+          <h3 id="quiz-result-title" style="color:var(--azul-oscuro);">¡Resultado!</h3>
+          <p id="quiz-result-msg" style="color:var(--gris-suave);"></p>
+          <button class="quiz-start-btn" onclick="startQuiz()">Reintentar Quiz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</main>
+
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ============ DEFINICIÓN DE SECCIONES ============
+var SECTIONS = [
+  {id:'home', icon:'🏠', label:'Inicio'},
+  {id:'b1', icon:'🛡️', label:'1. Los 7 Principios RGPD'},
+  {id:'b2', icon:'✅', label:'2. Consentimiento e Interés Legítimo'},
+  {id:'b3', icon:'🎯', label:'3. Finalidad y Compatibilidad'},
+  {id:'b4', icon:'🌐', label:'4. Fuentes Externas y Scraping'},
+  {id:'b5', icon:'📉', label:'5. Minimización y Exactitud'},
+  {id:'b6', icon:'☁️', label:'6. Seguridad y Nube'},
+  {id:'b7', icon:'🤖', label:'7. IA y Derechos'},
+  {id:'flashcards', icon:'🗂️', label:'Flashcards'},
+  {id:'quiz', icon:'📝', label:'Quiz'}
+];
+
+function renderNav(){
+  var nav = document.getElementById('nav-buttons');
+  var html = '';
+  for(var i=0;i<SECTIONS.length;i++){
+    var s = SECTIONS[i];
+    html += '<button class="nav-btn" data-target="'+s.id+'" onclick="showView(\''+s.id+'\')">'
+          + '<span class="nav-icon">'+s.icon+'</span><span>'+s.label+'</span></button>';
+  }
+  nav.innerHTML = html;
+}
+renderNav();
+
+function showView(id){
+  var views = document.querySelectorAll('.view');
+  for(var i=0;i<views.length;i++){ views[i].classList.remove('active'); }
+  var target = document.getElementById('view-'+id);
+  if(target){ target.classList.add('active'); }
+
+  var btns = document.querySelectorAll('.nav-btn');
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.remove('active');
+    if(btns[i].getAttribute('data-target')===id){ btns[i].classList.add('active'); }
+  }
+  window.scrollTo(0,0);
+  if(window.innerWidth <= 880){
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+function goTo(id){ showView(id); }
+
+// ============ FLASHCARDS ============
+var FC_DECKS = {
+  "todas": "Todas",
+  "principios": "Bloque 1: Principios",
+  "consentimiento": "Bloque 2: Consentimiento/Interés Legítimo",
+  "finalidad": "Bloque 3: Finalidad",
+  "scraping": "Bloque 4: Fuentes Externas",
+  "minimizacion": "Bloque 5: Minimización/Exactitud",
+  "seguridad": "Bloque 6: Seguridad/Nube",
+  "ia": "Bloque 7: IA/Derechos"
+};
+
+var FLASHCARDS = [
+  // ---- BLOQUE 1: Principios ----
+  {deck:"principios", q:"¿Cuáles son los 7 principios del RGPD? Nómbralos.", a:"1) Licitud, lealtad y transparencia. 2) Limitación de la finalidad. 3) Minimización de datos. 4) Exactitud. 5) Limitación del plazo de conservación. 6) Integridad y confidencialidad (Seguridad). 7) Responsabilidad proactiva."},
+  {deck:"principios", q:"Caso 'i-doctor-love': la app graba conversaciones por el micrófono sin avisar y usa psicólogos para analizarlas. ¿Qué principio de TRANSPARENCIA se incumple y por qué?", a:"Licitud, lealtad y transparencia: no informan a los usuarios de las grabaciones, no existe consentimiento válido ni otra base legal. Hay ausencia total de transparencia y lealtad."},
+  {deck:"principios", q:"En el caso 'i-doctor-love', ¿por qué se incumple el principio de LIMITACIÓN DE LA FINALIDAD?", a:"Porque las grabaciones son una finalidad nueva no contemplada originalmente. No puede ampararse en el consentimiento inicial de la app: se 'fuerza' la finalidad original."},
+  {deck:"principios", q:"En el caso 'i-doctor-love', ¿por qué se incumple MINIMIZACIÓN DE DATOS?", a:"Porque se recaban conversaciones completas (datos que exceden lo estrictamente necesario) para la finalidad declarada de encontrar pareja."},
+  {deck:"principios", q:"En el caso 'i-doctor-love' hay brechas de seguridad ocultas. ¿Qué principio se incumple?", a:"Integridad y confidencialidad (Seguridad): existen brechas conocidas y no corregidas; se han comprometido datos de usuarios y tarjetas de crédito."},
+  {deck:"principios", q:"La empresa de la app de citas conoce sus incumplimientos pero no actúa para corregirlos. ¿Qué principio es?", a:"Responsabilidad proactiva: no hay gestión de riesgos ni adopción de medidas correctivas, a pesar de conocer los problemas."},
+  {deck:"principios", q:"¿Qué frase resume la 'conclusión clave' del caso i-doctor-love sobre cómo se relacionan los incumplimientos?", a:"El incumplimiento de un principio suele arrastrar otros: falta de transparencia → ilegitimidad → exceso de datos → inseguridad."},
+  {deck:"principios", q:"¿Qué 4 obligaciones-pilar exige el RGPD a las organizaciones (más allá de los 7 principios)?", a:"1) Aplicar medidas técnicas y organizativas (Art. 24). 2) Tener representante en la UE si no está establecida allí (Art. 27). 3) Nombrar un Delegado de Protección de Datos (Art. 37). 4) Atender a las Autoridades de Control (Art. 31)."},
+  {deck:"principios", q:"¿Qué son 'Privacy by Design' y 'Privacy by Default'? ¿Los aplicó la app de citas?", a:"Privacidad desde el Diseño: incorporar la privacidad desde el inicio del desarrollo. Privacidad por Defecto: la configuración más protectora debe ser la predeterminada. La app de citas NO aplicó ninguna de las dos."},
+
+  // ---- BLOQUE 2: Consentimiento / Interés Legítimo ----
+  {deck:"consentimiento", q:"Caso SkyProjects: tienen 10 millones de clientes y quieren perfilarlos usando 'interés legítimo' para no pedir consentimiento. ¿Es tan sencillo como creen?", a:"No. El interés legítimo exige ponderar el beneficio de la empresa contra el riesgo para los afectados. El perfilado masivo es muy intrusivo, así que requiere un análisis de riesgo riguroso, no un atajo automático."},
+  {deck:"consentimiento", q:"¿Cuáles son las dos condiciones que compiten al evaluar el Interés Legítimo como base legal?", a:"1) El interés de la organización en realizar el tratamiento. 2) Los derechos fundamentales de los afectados que podrían verse afectados. El beneficio de la organización no debe superar el perjuicio del afectado."},
+  {deck:"consentimiento", q:"¿En qué casos SÍ aceptan las autoridades de control el Interés Legítimo? Nombra al menos 4.", a:"Libertad de expresión/información, prospección comercial convencional (no digital), procedimientos judiciales, prevención de fraude/blanqueo, supervisión de empleados, whistleblowing, seguridad física, fines históricos/científicos/estadísticos/investigación."},
+  {deck:"consentimiento", q:"¿Usar el Interés Legítimo como base legal exime de informar al afectado?", a:"No. Usar interés legítimo NO exime del deber de información. Hay que informar la finalidad del tratamiento y explicar cuáles son esos intereses legítimos."},
+  {deck:"consentimiento", q:"¿Cuándo es válido aplicar el Interés Legítimo según el criterio de riesgo?", a:"Solo cuando el perfil de riesgo para los derechos y libertades de los afectados NO es significativo. El perfilado de personas, por ser intrusivo, normalmente NO entra en esta categoría de bajo riesgo."},
+  {deck:"consentimiento", q:"¿Qué requisito debe cumplir siempre el Consentimiento para ser válido como base legal?", a:"Debe estar plenamente informado. Si falta información, el consentimiento es inválido (queda 'viciado'). Funciona como un contrato: el afectado acepta conociendo el alcance real del tratamiento."},
+  {deck:"consentimiento", q:"¿Qué son las 'Listas Robinson' y en qué contexto aparecen?", a:"Son mecanismos de exclusión voluntaria para que las personas se opongan a la prospección comercial convencional, uno de los ámbitos donde se acepta el interés legítimo."},
+
+  // ---- BLOQUE 3: Finalidad y Compatibilidad ----
+  {deck:"finalidad", q:"Caso Ventas Reunidas: usan una herramienta BI para analizar tendencias del negocio con datos que no se recogieron para ese fin. ¿Esto es automáticamente un riesgo de incumplimiento?", a:"No es automático. Hay que aplicar el Test de Compatibilidad: si el nuevo uso está dentro de las expectativas razonables del afectado y no genera riesgos adicionales, puede ser compatible."},
+  {deck:"finalidad", q:"¿Cuáles son las 2 condiciones para que un nuevo uso de datos pase el Test de Compatibilidad?", a:"1) Estar dentro de las expectativas razonables del afectado al dar sus datos. 2) No generar riesgos adicionales para el afectado."},
+  {deck:"finalidad", q:"Dentro del caso Ventas Reunidas: analizar TENDENCIAS de producto con los datos de ventas, ¿es compatible?", a:"Sí, es compatible: la finalidad sigue alineada con el propósito comercial inicial y no genera un riesgo adicional significativo para los afectados."},
+  {deck:"finalidad", q:"Dentro del mismo caso: si el análisis cambia el foco a PERFILES DE PERSONAS (edad, ingresos, hábitos), ¿sigue siendo compatible?", a:"No. El perfilado genera un incremento sustancial del riesgo para los derechos de los afectados, por lo que la compatibilidad de finalidades ya no se sostiene."},
+  {deck:"finalidad", q:"¿Cuáles son las 4 preguntas clave del Test de Compatibilidad?", a:"1) ¿El interesado puede razonablemente esperar este nuevo uso? 2) ¿Es algo natural y dentro de la práctica habitual? 3) ¿Es razonable usar los datos para esa finalidad? 4) ¿Ese nuevo uso aumenta el impacto del riesgo?"},
+  {deck:"finalidad", q:"¿Qué pasa con el Test de Compatibilidad cuando hay datos sensibles (categorías especiales) involucrados?", a:"Se complica mucho aplicarlo. Lo mismo ocurre con el interés legítimo sobre datos sensibles: en estos casos, ninguno de los dos suele ser el camino más adecuado."},
+  {deck:"finalidad", q:"¿Cuándo debe documentarse el análisis de compatibilidad o de interés legítimo: antes o después del tratamiento?", a:"ANTES, siempre. No es válido justificar el tratamiento 'a posteriori' cuando ya se es requerido por una autoridad. Debe existir un registro documentado previo a la decisión."},
+
+  // ---- BLOQUE 4: Fuentes externas / Scraping ----
+  {deck:"scraping", q:"Caso Brain Tech: una IA quiere predecir infartos usando datos de pacientes que no recogió ella misma. ¿Qué debe verificar antes de usarlos?", a:"Debe evaluar si el nuevo uso es compatible con el propósito original de los datos, y determinar si necesita reforzar o solicitar un nuevo consentimiento."},
+  {deck:"scraping", q:"¿Qué es la 'Due Diligence' (debida diligencia) al usar fuentes externas de datos?", a:"Es el proceso de evaluar si el nuevo procesamiento es incompatible con el propósito original de los datos, y verificar si se necesita mayor consentimiento o un nuevo aviso de privacidad antes de usarlos."},
+  {deck:"scraping", q:"'Si un dato está en Internet, lo puedo usar para lo que quiera'. ¿Verdadero o falso?", a:"Falso. Que un dato esté publicado en Internet no significa que se pueda usar libremente. Hay que analizar expectativas razonables, compatibilidad de finalidades y necesidad de consentimiento."},
+  {deck:"scraping", q:"¿El Web Scraping está prohibido por el RGPD?", a:"No está prohibido en sí mismo, pero debe tener base jurídica válida y respetar el RGPD. Que el dato sea público no elimina la obligación de transparencia (informar el origen de los datos)."},
+  {deck:"scraping", q:"¿Cuáles son los dos ámbitos legales distintos que convergen en el problema del Web Scraping?", a:"1) Propiedad intelectual / derechos sobre bases de datos (términos de uso de los sitios web). 2) Protección de datos (RGPD): compatibilidad, transparencia y consentimiento."},
+  {deck:"scraping", q:"¿Qué tipos de datos requieren especial cuidado al hacer scraping o usar fuentes externas?", a:"Datos de perfilado, datos sensibles (categorías especiales) y datos de menores: son contextos de alto riesgo y muy difíciles de legitimar."},
+
+  // ---- BLOQUE 5: Minimización / Exactitud ----
+  {deck:"minimizacion", q:"Caso Black Tech: 'más siempre es mejor' es la máxima del director. Recopilan datos informales (familia, edad de hijos) en cada contacto con el cliente. ¿Qué principio incumplen?", a:"Minimización de datos: recaban información más allá de lo necesario para la finalidad declarada. 'Podría servir en el futuro' no es justificación válida."},
+  {deck:"minimizacion", q:"¿Qué porcentaje de empresas (estudio ICO en UK, Francia y Alemania) admitió haber reunido datos que después no utilizó?", a:"El 72%. La recopilación excesiva no es solo un problema legal: también genera un costo económico real de gestión."},
+  {deck:"minimizacion", q:"¿'Encontrar una correlación útil después' justifica retrospectivamente haber recopilado un dato?", a:"No. Encontrar una correlación no justifica retrospectivamente la obtención de los datos en primer lugar."},
+  {deck:"minimizacion", q:"La minimización no es solo 'recopilar menos'. ¿Qué otro aspecto incluye?", a:"También incluye 'retener menos': el ciclo de vida del dato debe estar vinculado a su finalidad, que debe permitir identificar cuándo el tratamiento debe terminar."},
+  {deck:"minimizacion", q:"Caso Luis Fernández: fue bloqueado del examen porque el sistema decía que debía una cuota, pero la había pagado 3 semanas antes. ¿Qué principio se incumplió?", a:"Exactitud de los datos: la información del sistema (deuda pendiente) ya no reflejaba la realidad (pago confirmado), causando un perjuicio real al alumno."},
+  {deck:"minimizacion", q:"¿Por qué un currículo de RRHH puede considerarse 'inexacto' tras solo un año, aunque nadie lo haya modificado?", a:"Porque los datos se vuelven inexactos con el tiempo: la situación de la persona (experiencia, habilidades, disponibilidad) cambia, aunque el documento siga igual."},
+  {deck:"minimizacion", q:"En los ficheros de morosidad, ¿cuál es la falla común relacionada con exactitud?", a:"Rapidez para notificar la deuda, pero lentitud para notificar su cancelación. Esto genera perjuicio (dificulta el acceso a crédito) mucho después de que la deuda fue pagada."},
+  {deck:"minimizacion", q:"¿Qué exige el 'principio de diligencia' en relación a datos inexactos?", a:"Que la diligencia sea máxima cuando el perjuicio potencial es relevante para los derechos del afectado: no basta proteger los intereses de la organización con rapidez, hay que corregir errores con la misma rapidez."},
+
+  // ---- BLOQUE 6: Seguridad / Nube ----
+  {deck:"seguridad", q:"Caso TechNova: un responsable de RRHH pierde un pendrive con nóminas, DNI y datos bancarios de todo el personal. ¿Qué principio se incumple?", a:"Integridad y confidencialidad (Seguridad): los datos salieron de su entorno protegido sin medidas de seguridad equivalentes (cifrado, control de acceso)."},
+  {deck:"seguridad", q:"¿Por qué se dice que el caso del pendrive de TechNova es 'anacrónico pero útil'?", a:"Porque hoy ya no usamos pendrives, pero el mismo riesgo se trasladó a la nube: sincronizaciones y arquitecturas replicadas generan copias temporales en múltiples lugares sin control adecuado."},
+  {deck:"seguridad", q:"En el modelo de 'Cloud Risk', ¿qué corresponde típicamente al proveedor y qué al cliente?", a:"El proveedor asume el riesgo de datos y aplicaciones vía el SLA (acuerdo de nivel de servicio). El cliente debe supervisar activamente que ese SLA se cumpla."},
+  {deck:"seguridad", q:"¿Basta con que un encargado de tratamiento tenga una certificación o autoevaluación para confiar en su seguridad?", a:"No. Las autoridades de control señalan que certificaciones y autodiagnósticos NO son suficientes; se requiere monitorización proactiva con evidencias reales (auditorías)."},
+  {deck:"seguridad", q:"¿Qué dos riesgos específicos de seguridad menciona el ENISA para el análisis de Big Data?", a:"Alto nivel de replicación en el almacenamiento, y que la frecuente externalización de los análisis aumenta el riesgo de violaciones, fugas de datos y degradación."},
+  {deck:"seguridad", q:"¿Qué dificulta el análisis de Big Data en cuanto a roles dentro del RGPD?", a:"Puede dificultar la distinción entre quién es el controlador (responsable) y quién es el procesador (encargado) de los datos, especialmente con outsourcing a empresas de IA."},
+
+  // ---- BLOQUE 7: IA / Derechos ----
+  {deck:"ia", q:"¿Por qué puede ser difícil determinar 'quién es el responsable del tratamiento' en un sistema de IA?", a:"Porque no está claro quién decide realmente la finalidad de los datos: ¿el desarrollador del modelo, el proveedor, o la organización que lo implementa? La cadena de responsabilidad puede ser difusa."},
+  {deck:"ia", q:"Caso BioDataCare: el hospital usa datos de pacientes para entrenar modelos predictivos sin informarles específicamente, solo con una 'política de privacidad genérica'. ¿Es suficiente?", a:"No. El derecho de información exige informar específicamente sobre este tratamiento concreto (uso para I+D predictivo), no basta una política genérica sin mecanismo de oposición."},
+  {deck:"ia", q:"¿Por qué el caso BioDataCare es especialmente delicado en cuanto a base legal (interés legítimo o compatibilidad)?", a:"Porque involucra datos sensibles (historiales médicos): en categorías especiales, ni el interés legítimo ni la compatibilidad de finalidades suelen ser caminos adecuados."},
+  {deck:"ia", q:"¿Qué enfoques innovadores se recomiendan para informar sobre tratamientos complejos de Big Data/IA?", a:"Videos, dibujos animados, notificaciones 'just in time' e íconos estandarizados. Combinar varios enfoques ayuda a que la información compleja sea más fácil de entender."},
+  {deck:"ia", q:"¿Qué es la 'transparencia algorítmica'?", a:"El esfuerzo importante que debe hacer una organización para explicar lo complejo: los efectos, las consecuencias y las alternativas de un sistema automatizado, incluyendo qué categorías de datos se infieren o agregan."},
+  {deck:"ia", q:"¿Por qué el Big Data puede dificultar el ejercicio del derecho de acceso de las personas?", a:"Porque las grandes cantidades de datos manejadas hacen más difícil para las organizaciones localizar y entregar toda la información asociada a una persona cuando esta ejercita su derecho de acceso."},
+  {deck:"ia", q:"¿Qué son los 'centros de privacidad' que están en tendencia y qué beneficio doble ofrecen?", a:"Son herramientas de autogestión donde el usuario decide qué información hacer pública o privada. Beneficio: dan control al usuario y permiten a la organización demostrar que facilita el ejercicio de derechos."}
+];
+
+var fcCurrentDeck = "todas";
+var fcFilteredCards = [];
+var fcIndex = 0;
+var fcFlipped = false;
+
+function fcGetFiltered(){
+  if(fcCurrentDeck === "todas") return FLASHCARDS;
+  var out = [];
+  for(var i=0;i<FLASHCARDS.length;i++){
+    if(FLASHCARDS[i].deck === fcCurrentDeck) out.push(FLASHCARDS[i]);
+  }
+  return out;
+}
+
+function renderDeckSelect(){
+  var el = document.getElementById('fc-deck-select');
+  var html = '';
+  for(var key in FC_DECKS){
+    var cls = (key === fcCurrentDeck) ? 'active' : '';
+    html += '<button class="'+cls+'" onclick="selectDeck(\''+key+'\')">'+FC_DECKS[key]+'</button>';
+  }
+  el.innerHTML = html;
+}
+
+function selectDeck(key){
+  fcCurrentDeck = key;
+  fcFilteredCards = fcGetFiltered();
+  fcIndex = 0;
+  fcFlipped = false;
+  renderDeckSelect();
+  renderCard();
+}
+
+function renderCard(){
+  if(fcFilteredCards.length === 0){
+    document.getElementById('fc-text').innerText = "No hay tarjetas en este mazo.";
+    document.getElementById('fc-progress').innerText = "0 de 0";
+    return;
+  }
+  var card = fcFilteredCards[fcIndex];
+  var tagEl = document.getElementById('fc-tag');
+  var textEl = document.getElementById('fc-text');
+  var cardEl = document.getElementById('flashcard');
+
+  if(fcFlipped){
+    tagEl.innerText = "RESPUESTA";
+    textEl.innerText = card.a;
+    cardEl.classList.add('flipped');
+  } else {
+    tagEl.innerText = "PREGUNTA / CASO";
+    textEl.innerText = card.q;
+    cardEl.classList.remove('flipped');
+  }
+  document.getElementById('fc-progress').innerText = "Tarjeta " + (fcIndex+1) + " de " + fcFilteredCards.length;
+}
+
+function flipCard(){
+  fcFlipped = !fcFlipped;
+  renderCard();
+}
+
+function nextCard(){
+  if(fcFilteredCards.length === 0) return;
+  fcIndex = (fcIndex + 1) % fcFilteredCards.length;
+  fcFlipped = false;
+  renderCard();
+}
+
+function prevCard(){
+  if(fcFilteredCards.length === 0) return;
+  fcIndex = (fcIndex - 1 + fcFilteredCards.length) % fcFilteredCards.length;
+  fcFlipped = false;
+  renderCard();
+}
+
+// init flashcards
+fcFilteredCards = fcGetFiltered();
+renderDeckSelect();
+renderCard();
+
+// ============ QUIZ ============
+var QUIZ_QUESTIONS = [
+  {
+    caso: "App de citas 'i-doctor-love': graba conversaciones por el micrófono sin avisar a los usuarios y no tiene base legal para ello.",
+    pregunta: "¿Qué principio se incumple de forma más directa en este punto?",
+    opciones: ["Limitación del plazo de conservación", "Licitud, lealtad y transparencia", "Exactitud de los datos", "Responsabilidad proactiva"],
+    correcta: 1,
+    feedback: "Correcto: no informar a los usuarios y no tener base legal vulnera directamente la licitud, lealtad y transparencia."
+  },
+  {
+    caso: "App de citas 'i-doctor-love': la grabación de conversaciones no estaba contemplada cuando el usuario se registró en la app.",
+    pregunta: "¿Qué principio se incumple aquí?",
+    opciones: ["Minimización de datos", "Limitación de la finalidad", "Seguridad", "Exactitud"],
+    correcta: 1,
+    feedback: "Correcto: es una finalidad nueva no contemplada originalmente; no puede ampararse en el consentimiento inicial."
+  },
+  {
+    caso: "App de citas 'i-doctor-love': sufrieron brechas de seguridad con robo de datos de tarjetas de crédito, y las mantienen ocultas.",
+    pregunta: "¿Qué dos elementos se incumplen aquí a la vez?",
+    opciones: ["Minimización + Exactitud", "Integridad/confidencialidad (seguridad) + Responsabilidad proactiva", "Limitación de la finalidad + Licitud", "Exactitud + Plazo de conservación"],
+    correcta: 1,
+    feedback: "Correcto: hay brechas de seguridad sin corregir (seguridad) y la organización no actúa pese a conocerlas (responsabilidad proactiva)."
+  },
+  {
+    caso: "SkyProjects tiene 10 millones de clientes y 15 años de historial. Quiere perfilarlos y recuperar clientes perdidos usando 'interés legítimo' para evitar pedir consentimiento.",
+    pregunta: "¿Es correcto este razonamiento de la Dirección General?",
+    opciones: [
+      "Sí, el interés legítimo siempre permite evitar el consentimiento",
+      "No, porque el perfilado masivo es muy intrusivo y requiere un análisis de riesgo riguroso antes de aplicar interés legítimo",
+      "No, porque el interés legítimo solo aplica al sector público",
+      "Sí, siempre que la empresa sea grande"
+    ],
+    correcta: 1,
+    feedback: "Correcto: el interés legítimo no es un atajo automático. El perfilado masivo es muy intrusivo, así que exige una ponderación de riesgos rigurosa y documentada."
+  },
+  {
+    caso: "Una empresa usa el interés legítimo para hacer prospección comercial convencional (cartas, llamadas no automatizadas) con posibilidad de oponerse vía Listas Robinson.",
+    pregunta: "¿Es este un ámbito donde las autoridades de control SÍ reconocen el interés legítimo?",
+    opciones: ["No, nunca", "Sí, es uno de los ámbitos reconocidos por ser menos intrusivo", "Solo si es una empresa pública", "Solo con consentimiento adicional"],
+    correcta: 1,
+    feedback: "Correcto: la prospección comercial convencional (no digital/automatizada) es uno de los ámbitos aceptados, precisamente por ser menos intrusiva y permitir oposición fácil."
+  },
+  {
+    caso: "Ventas Reunidas tiene +1.000.000 de clientes y usa una herramienta BI para analizar TENDENCIAS de ventas del negocio, finalidad no anunciada originalmente.",
+    pregunta: "Según el Test de Compatibilidad, ¿este caso específico (enfoque en tendencias) es compatible?",
+    opciones: ["No, nunca se puede reutilizar un dato para otro fin", "Sí, porque sigue alineado al propósito comercial y no añade riesgo significativo a los afectados", "Solo si piden consentimiento a cada cliente", "No, porque usan una herramienta BI"],
+    correcta: 1,
+    feedback: "Correcto: cuando el foco está en tendencias de producto/negocio (no en personas), suele pasar el test de compatibilidad."
+  },
+  {
+    caso: "Ese mismo caso de Ventas Reunidas, pero ahora el análisis se enfoca en crear PERFILES individuales de cada cliente (edad, ingresos, hábitos).",
+    pregunta: "¿Sigue siendo compatible con la finalidad original?",
+    opciones: ["Sí, es el mismo dato así que da igual el enfoque", "No, el perfilado individual aumenta sustancialmente el riesgo y rompe la compatibilidad", "Sí, si se hace con IA es automáticamente legal", "No, porque las herramientas BI están prohibidas"],
+    correcta: 1,
+    feedback: "Correcto: mismo dato, distinto enfoque, distinto resultado legal. El perfilado individual incrementa el riesgo y normalmente no pasa el test de compatibilidad."
+  },
+  {
+    caso: "Brain Tech (IA) quiere usar historiales médicos de pacientes que no recogió directamente, para predecir infartos en 7 días.",
+    pregunta: "Antes de usar esos datos externos, ¿qué debe hacer Brain Tech como primer paso?",
+    opciones: [
+      "Empezar a entrenar el modelo y luego pedir perdón si hay problemas",
+      "Evaluar si el nuevo uso es compatible con el propósito original de esos datos (Due Diligence) y si necesita nuevo consentimiento",
+      "Nada, los datos médicos son siempre de uso libre para fines de salud",
+      "Solo necesita anonimizar los datos y ya puede usarlos libremente"
+    ],
+    correcta: 1,
+    feedback: "Correcto: se debe aplicar Due Diligence: evaluar compatibilidad con el propósito original y determinar si se necesita un nuevo consentimiento, antes de entrenar el modelo."
+  },
+  {
+    caso: "Un desarrollador afirma: 'estos datos personales están publicados en redes sociales y foros, así que puedo usarlos libremente para mi sistema de IA'.",
+    pregunta: "¿Es correcta esta afirmación según el RGPD?",
+    opciones: ["Sí, todo lo público es de uso libre", "No, que un dato sea accesible públicamente no elimina las obligaciones de transparencia y compatibilidad de finalidad", "Sí, siempre que sea con fines de investigación", "No, el scraping está totalmente prohibido en la UE"],
+    correcta: 1,
+    feedback: "Correcto: el mito de 'si está en internet, lo puedo usar para lo que quiera' es FALSO. Sigue aplicando el RGPD: transparencia, compatibilidad y, a veces, consentimiento adicional."
+  },
+  {
+    caso: "Black Tech recopila en cada contacto comercial datos informales del cliente: nombre de los hijos, fecha de nacimiento de la familia, etc., 'por si sirven en el futuro'.",
+    pregunta: "¿Qué principio incumple esta práctica?",
+    opciones: ["Exactitud", "Minimización de datos", "Limitación del plazo de conservación únicamente", "Seguridad"],
+    correcta: 1,
+    feedback: "Correcto: recopilar datos no necesarios para la finalidad concreta, justificándolo con 'podría servir en el futuro', es un incumplimiento claro de minimización."
+  },
+  {
+    caso: "La Universidad DataForm bloqueó a Luis Fernández del examen porque el sistema marcaba una cuota pendiente, aunque él ya había pagado y entregado el justificante 3 semanas antes.",
+    pregunta: "¿Qué principio del RGPD está en el centro de este problema?",
+    opciones: ["Minimización de datos", "Exactitud de los datos", "Licitud, lealtad y transparencia", "Responsabilidad proactiva únicamente"],
+    correcta: 1,
+    feedback: "Correcto: el sistema no reflejaba la realidad actualizada (el pago ya hecho), lo que es justamente un fallo de exactitud de los datos, y generó un perjuicio real."
+  },
+  {
+    caso: "En los ficheros de morosidad, una deuda ya pagada sigue apareciendo como pendiente durante meses, dificultando el acceso a crédito del afectado.",
+    pregunta: "¿Qué principio de diligencia se está vulnerando?",
+    opciones: [
+      "Ninguno, es normal que tarde en actualizarse",
+      "Se vulnera la exactitud: debe aplicarse la misma diligencia para notificar la cancelación de la deuda que la que se aplicó para notificarla",
+      "Se vulnera la minimización de datos",
+      "Se vulnera el derecho de oposición"
+    ],
+    correcta: 1,
+    feedback: "Correcto: la diligencia debe ser igual de rápida para corregir/cancelar como lo fue para registrar la deuda originalmente, dado el perjuicio que genera al afectado."
+  },
+  {
+    caso: "TechNova: un responsable de RRHH pierde un pendrive con nóminas, DNI y datos bancarios de todo el personal mientras trabajaba en remoto.",
+    pregunta: "¿Qué principio del RGPD se incumple directamente?",
+    opciones: ["Minimización de datos", "Integridad y confidencialidad (Seguridad)", "Limitación de la finalidad", "Exactitud"],
+    correcta: 1,
+    feedback: "Correcto: sacar datos sensibles de su entorno protegido sin medidas de seguridad equivalentes (cifrado, control) es un fallo de integridad y confidencialidad."
+  },
+  {
+    caso: "Hoy en día, en lugar de pendrives, los datos se sincronizan y replican automáticamente en múltiples servidores en la nube sin control claro.",
+    pregunta: "¿Qué relación tiene esto con el caso del pendrive de TechNova?",
+    opciones: [
+      "Ninguna relación, son problemas distintos",
+      "Es el mismo riesgo (sacar datos de su entorno protegido) trasladado a un contexto cloud con alta replicación",
+      "La nube siempre es más segura que un pendrive, así que no hay riesgo",
+      "Solo aplica si la empresa no tiene certificación ISO"
+    ],
+    correcta: 1,
+    feedback: "Correcto: el riesgo de fuga no desapareció con el pendrive, se trasladó a la nube, donde el alto nivel de replicación y la externalización aumentan el riesgo."
+  },
+  {
+    caso: "Una empresa confía en que su proveedor cloud tiene una certificación de seguridad y no realiza ninguna auditoría propia.",
+    pregunta: "Según las autoridades de control, ¿es esto suficiente?",
+    opciones: ["Sí, una certificación siempre es prueba suficiente", "No, se requiere monitorización proactiva con evidencias reales (auditorías), no solo certificaciones", "Sí, si el proveedor es una empresa grande y conocida", "No, las certificaciones no tienen ningún valor"],
+    correcta: 1,
+    feedback: "Correcto: las autoridades han señalado que certificaciones y autodiagnósticos NO son suficientes; se exige monitorización proactiva real."
+  },
+  {
+    caso: "Una organización implementa un sistema de IA desarrollado por un proveedor externo, y no queda claro quién decide la finalidad final de los datos procesados.",
+    pregunta: "¿Qué problema específico de Big Data/IA ilustra esta situación?",
+    opciones: [
+      "Problema de minimización de datos",
+      "La dificultad de determinar quién es el responsable del tratamiento en contextos de IA",
+      "Problema de exactitud de los datos",
+      "Problema de plazo de conservación"
+    ],
+    correcta: 1,
+    feedback: "Correcto: en IA, la cadena de responsabilidad (quién decide la finalidad: desarrollador, proveedor u organización) puede ser difusa, y debe clarificarse antes de implementar."
+  },
+  {
+    caso: "BioDataCare (hospital) usa historiales médicos para entrenar modelos predictivos de enfermedades, informando solo mediante una 'política de privacidad genérica' en su web, sin mecanismo de oposición.",
+    pregunta: "¿Cumple esto con el derecho de información del RGPD?",
+    opciones: [
+      "Sí, una política de privacidad general siempre es suficiente",
+      "No, se requiere informar específicamente sobre este tratamiento concreto y ofrecer mecanismos reales de oposición",
+      "Sí, porque es un hospital y tiene fines de salud pública",
+      "No aplica el RGPD porque son datos médicos"
+    ],
+    correcta: 1,
+    feedback: "Correcto: una política genérica no es suficiente cuando el tratamiento (perfilado, I+D con terceros) no fue específicamente comunicado ni se ofreció oposición."
+  },
+  {
+    caso: "El caso BioDataCare involucra historiales médicos (categoría especial de datos) usados para investigación con una empresa tecnológica externa.",
+    pregunta: "¿Por qué este caso es especialmente difícil de justificar con interés legítimo o compatibilidad de finalidades?",
+    opciones: [
+      "Porque los hospitales nunca pueden usar IA",
+      "Porque al tratarse de datos sensibles, ni el interés legítimo ni la compatibilidad de finalidades suelen ser caminos adecuados",
+      "Porque la empresa tecnológica es privada",
+      "No es especialmente difícil, es un caso estándar"
+    ],
+    correcta: 1,
+    feedback: "Correcto: con datos sensibles (categorías especiales), ambas vías (interés legítimo y compatibilidad) se vuelven muy difíciles de sostener; se exige un rigor mucho mayor."
+  },
+  {
+    caso: "Una app de salud usa videos cortos, notificaciones 'just in time' e iconos estandarizados para explicar cómo usa los datos de sus usuarios en un sistema de IA.",
+    pregunta: "¿Qué buena práctica del RGPD está aplicando?",
+    opciones: ["Minimización de datos", "Enfoques innovadores para cumplir el derecho de información de forma comprensible", "Limitación del plazo de conservación", "Responsabilidad proactiva exclusivamente"],
+    correcta: 1,
+    feedback: "Correcto: combinar formatos (videos, iconos, notificaciones just in time) ayuda a que información compleja de Big Data/IA sea más fácil de entender, reforzando el derecho de información."
+  },
+  {
+    caso: "Una plataforma de redes sociales permite a cada usuario decidir, desde un panel propio, qué datos son públicos y cuáles privados.",
+    pregunta: "¿Qué tendencia actual relacionada con el ejercicio de derechos representa esto?",
+    opciones: ["Web scraping", "Centros de privacidad / autogestión de privacidad", "Due diligence", "Test de compatibilidad"],
+    correcta: 1,
+    feedback: "Correcto: son los llamados 'centros de privacidad', que dan control al usuario y ayudan a la organización a demostrar que facilita el ejercicio de derechos (aunque su efectividad real aún debe comprobarse)."
+  }
+];
+
+var quizOrder = [];
+var quizCurrent = 0;
+var quizScore = 0;
+var quizAnswered = false;
+
+function shuffleArray(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+
+function startQuiz(){
+  quizOrder = shuffleArray(QUIZ_QUESTIONS);
+  quizCurrent = 0;
+  quizScore = 0;
+  document.getElementById('quiz-start-screen').style.display = 'none';
+  document.getElementById('quiz-result-screen').style.display = 'none';
+  document.getElementById('quiz-active').style.display = 'block';
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  quizAnswered = false;
+  var total = quizOrder.length;
+  var pct = (quizCurrent / total) * 100;
+  document.getElementById('quiz-progress-fill').style.width = pct + '%';
+
+  var q = quizOrder[quizCurrent];
+  var html = '<div class="quiz-question">';
+  html += '<div class="qcase"><strong>📂 Caso:</strong> ' + q.caso + '</div>';
+  html += '<h4>Pregunta ' + (quizCurrent+1) + ' de ' + total + ': ' + q.pregunta + '</h4>';
+  html += '<div class="quiz-options" id="quiz-options-list">';
+  for(var i=0;i<q.opciones.length;i++){
+    html += '<button class="quiz-option" onclick="selectAnswer('+i+')">' + q.opciones[i] + '</button>';
+  }
+  html += '</div>';
+  html += '<div id="quiz-feedback-area"></div>';
+  html += '</div>';
+
+  document.getElementById('quiz-question-container').innerHTML = html;
+}
+
+function selectAnswer(idx){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  var q = quizOrder[quizCurrent];
+  var buttons = document.querySelectorAll('#quiz-options-list .quiz-option');
+  for(var i=0;i<buttons.length;i++){
+    buttons[i].disabled = true;
+    if(i === q.correcta){
+      buttons[i].classList.add('correct');
+    }
+    if(i === idx && idx !== q.correcta){
+      buttons[i].classList.add('incorrect');
+    }
+  }
+
+  var feedbackArea = document.getElementById('quiz-feedback-area');
+  var isCorrect = (idx === q.correcta);
+  if(isCorrect){
+    quizScore++;
+    feedbackArea.innerHTML = '<div class="quiz-feedback correct">✅ ¡Correcto! ' + q.feedback + '</div>';
+  } else {
+    feedbackArea.innerHTML = '<div class="quiz-feedback incorrect">❌ No es la respuesta correcta. ' + q.feedback + '</div>';
+  }
+
+  var btnLabel = (quizCurrent < quizOrder.length - 1) ? 'Siguiente pregunta →' : 'Ver resultado final →';
+  feedbackArea.innerHTML += '<button class="quiz-next-btn" onclick="nextQuizQuestion()">' + btnLabel + '</button>';
+}
+
+function nextQuizQuestion(){
+  quizCurrent++;
+  if(quizCurrent < quizOrder.length){
+    renderQuizQuestion();
+  } else {
+    showQuizResult();
+  }
+}
+
+function showQuizResult(){
+  document.getElementById('quiz-progress-fill').style.width = '100%';
+  document.getElementById('quiz-active').style.display = 'none';
+  document.getElementById('quiz-result-screen').style.display = 'block';
+
+  var total = quizOrder.length;
+  document.getElementById('quiz-score-circle').innerText = quizScore + '/' + total;
+
+  var pct = (quizScore/total)*100;
+  var title, msg;
+  if(pct >= 85){
+    title = '🏆 ¡Excelente dominio del tema!';
+    msg = 'Identificas muy bien qué principio o base legal aplica en cada caso. Estás listo para el examen.';
+  } else if(pct >= 65){
+    title = '👍 ¡Buen resultado!';
+    msg = 'Tienes una base sólida. Repasa las flashcards de los bloques donde fallaste para reforzar.';
+  } else if(pct >= 45){
+    title = '📚 Vas por buen camino';
+    msg = 'Hay conceptos que aún se mezclan. Te recomiendo repasar los bloques de Finalidad/Compatibilidad y Minimización/Exactitud con las flashcards.';
+  } else {
+    title = '🔄 Sigue practicando';
+    msg = 'Este tema es casuístico y requiere repetición. Vuelve a leer los resúmenes por bloque y luego repite las flashcards antes de reintentar el quiz.';
+  }
+  document.getElementById('quiz-result-title').innerText = title;
+  document.getElementById('quiz-result-msg').innerText = msg;
+}
+</script>
+</body>
+</html>
