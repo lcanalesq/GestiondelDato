@@ -442,6 +442,7 @@
         <h3>📝 Quiz</h3>
         <p>Pon a prueba si sabes identificar qué principio se incumple en cada caso.</p>
       </div>
+      
     </div>
   </div>
 
@@ -1011,7 +1012,7 @@ function toggleSidebar(){
 
 // ============ DEFINICIÓN DE SECCIONES ============
 var SECTIONS = [
-  {id:'home', icon:'🏠', label:'Inicio'},
+ 
   {id:'b1', icon:'🛡️', label:'1. Los 7 Principios RGPD'},
   {id:'b2', icon:'✅', label:'2. Consentimiento e Interés Legítimo'},
   {id:'b3', icon:'🎯', label:'3. Finalidad y Compatibilidad'},
@@ -1020,7 +1021,8 @@ var SECTIONS = [
   {id:'b6', icon:'☁️', label:'6. Seguridad y Nube'},
   {id:'b7', icon:'🤖', label:'7. IA y Derechos'},
   {id:'flashcards', icon:'🗂️', label:'Flashcards'},
-  {id:'quiz', icon:'📝', label:'Quiz'}
+  {id:'quiz', icon:'📝', label:'Quiz'},
+  {id:'home', icon:'🏠', label:'HOME'}
 ];
 
 function renderNav(){
@@ -1028,8 +1030,13 @@ function renderNav(){
   var html = '';
   for(var i=0;i<SECTIONS.length;i++){
     var s = SECTIONS[i];
-    html += '<button class="nav-btn" data-target="'+s.id+'" onclick="showView(\''+s.id+'\')">'
-          + '<span class="nav-icon">'+s.icon+'</span><span>'+s.label+'</span></button>';
+    if(s.id === 'home'){
+      html += '<a class="nav-btn" href="https://lcanalesq.github.io/GestiondelDato/index.html">'
+            + '<span class="nav-icon">'+s.icon+'</span><span>'+s.label+'</span></a>';
+    } else {
+      html += '<button class="nav-btn" data-target="'+s.id+'" onclick="showView(\''+s.id+'\')">'
+            + '<span class="nav-icon">'+s.icon+'</span><span>'+s.label+'</span></button>';
+    }
   }
   nav.innerHTML = html;
 }
