@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gobierno del Dato y Toma de Decisiones</title>
+<style>
+  :root{
+    --paper: #F2EFE6;
+    --paper-dark: #E8E3D3;
+    --ink: #2B2A28;
+    --ink-soft: #5C5750;
+    --rust: #B5502E;
+    --rust-dark: #8E3B20;
+    --line: #C9C2AC;
+    --tab-9a: #6B7A5E;
+    --tab-9b: #6B7A5E;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(0,0,0,0.025) 39px),
+      radial-gradient(circle at 50% 0%, rgba(181,80,46,0.04), transparent 60%);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    min-height: 100vh;
+  }
+
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 56px 28px 90px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom: 54px;
+    position: relative;
+  }
+
+  .eyebrow{
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.32em;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow::before, .eyebrow::after{
+    content: "—";
+    margin: 0 10px;
+    color: var(--rust);
+  }
+
+  h1{
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4.6vw, 50px);
+    line-height: 1.15;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 .accent{
+    color: var(--rust);
+    font-style: italic;
+  }
+
+  .subhead{
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+
+  .ruler{
+    width: 140px;
+    height: 3px;
+    margin: 22px auto 0;
+    background: repeating-linear-gradient(90deg, var(--rust) 0, var(--rust) 6px, transparent 6px, transparent 11px);
+  }
+
+  .index-label{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    margin: 0 0 18px 4px;
+    color: var(--ink-soft);
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .index-label::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: var(--line);
+  }
+
+  .index{
+    display:flex;
+    flex-direction:column;
+    border-top: 2px solid var(--ink);
+  }
+
+  .entry{
+    display:block;
+    text-decoration:none;
+    color: inherit;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .entry-inner{
+    display:grid;
+    grid-template-columns: 86px 1fr 28px;
+    align-items:center;
+    gap: 20px;
+    padding: 18px 14px 18px 4px;
+    transition: padding-left 0.18s ease, background 0.18s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .num{
+    font-family: Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--line);
+    transition: color 0.18s ease;
+    line-height: 1;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .titles{
+    display:flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .tema-tag{
+    font-family: "Courier New", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    color: var(--rust);
+    text-transform: uppercase;
+  }
+
+  .tema-name{
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .arrow{
+    font-family: Georgia, serif;
+    font-size: 20px;
+    color: var(--line);
+    transition: transform 0.18s ease, color 0.18s ease;
+    text-align:right;
+  }
+
+  .entry::before{
+    content:"";
+    position:absolute;
+    inset: 0;
+    background: var(--paper-dark);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.22s ease;
+    z-index:0;
+  }
+
+  .entry:hover::before, .entry:focus-visible::before{
+    transform: scaleX(1);
+  }
+
+  .entry:hover .entry-inner, .entry:focus-visible .entry-inner{
+    padding-left: 16px;
+  }
+
+  .entry:hover .num, .entry:focus-visible .num{
+    color: var(--rust);
+  }
+
+  .entry:hover .arrow, .entry:focus-visible .arrow{
+    transform: translateX(4px);
+    color: var(--rust);
+  }
+
+  .entry:focus-visible{
+    outline: 2px solid var(--rust);
+    outline-offset: -2px;
+  }
+
+  .sub-pair{
+    border-bottom: 1px solid var(--line);
+  }
+  .sub-pair .entry{
+    border-bottom: none;
+  }
+  .sub-pair .entry:not(:last-child) .entry-inner{
+    border-bottom: 1px dashed var(--line);
+  }
+  .sub-pair-note{
+    grid-column: 2 / 3;
+    font-family: "Courier New", monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 56px;
+    color: var(--ink-soft);
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 560px){
+    .wrap{ padding: 36px 16px 70px; }
+    .entry-inner{
+      grid-template-columns: 52px 1fr 20px;
+      gap: 12px;
+      padding: 16px 10px 16px 2px;
+    }
+    .num{ font-size: 22px; }
+    .tema-name{ font-size: 15.5px; }
+    h1{ font-size: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Postgrado · Gobierno del Dato</div>
+    <h1>GOBIERNO DEL DATO<br><span class="accent">Y TOMA DE DECISIONES</span></h1>
+    <div class="subhead">ÍNDICE DE TEMAS — MATERIAL DE ESTUDIO</div>
+    <div class="ruler"></div>
+  </header>
+
+  <div class="index-label">Temario completo</div>
+
+  <nav class="index">
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema1_direccion_estrategica.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">01</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 01</span>
+          <span class="tema-name">Dirección Estratégica</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema2_business_intelligence.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">02</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 02</span>
+          <span class="tema-name">Business Intelligence</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema3_dw_datalake.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">03</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 03</span>
+          <span class="tema-name">Data Warehouse y Data Lake</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema4_metodologias.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">04</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 04</span>
+          <span class="tema-name">Metodologías (Kimball / Inmon)</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema5_marketing_estrategico.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">05</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 05</span>
+          <span class="tema-name">Marketing Estratégico</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema6_metricas_y_metodos_analisis.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">06</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 06</span>
+          <span class="tema-name">Métricas y Métodos de Análisis</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema7_marketing_relacional_crm.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">07</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 07</span>
+          <span class="tema-name">Marketing Relacional y CRM</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema8_Privacidad_Origen_y_Definiciones.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">08</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 08</span>
+          <span class="tema-name">Privacidad: Origen y Definiciones</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <div class="sub-pair">
+      <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema9_BigData_IA_Privacidad.html" target="_blank" rel="noopener">
+        <div class="entry-inner">
+          <span class="num">09<span style="font-size:16px;">A</span></span>
+          <span class="titles">
+            <span class="tema-tag">Tema 09 · A</span>
+            <span class="tema-name">Big Data, IA y Privacidad</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+      <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema9_bigdata_protecciondatos.html" target="_blank" rel="noopener">
+        <div class="entry-inner">
+          <span class="num">09<span style="font-size:16px;">B</span></span>
+          <span class="titles">
+            <span class="tema-tag">Tema 09 · B</span>
+            <span class="tema-name">Big Data y Protección de Datos</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    </div>
+
+    <a class="entry" href="https://lcanalesq.github.io/GestiondelDato/tema9_bigdata_protecciondatos.html" target="_blank" rel="noopener">
+      <div class="entry-inner">
+        <span class="num">10</span>
+        <span class="titles">
+          <span class="tema-tag">Tema 10</span>
+          <span class="tema-name">Tema 10</span>
+        </span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+  </nav>
+
+  <footer>
+    UNIR · Gobierno del Dato — Material de estudio interactivo
+  </footer>
+
+</div>
+
+</body>
+</html>
