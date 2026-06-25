@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tema 10 — Disociación de Datos y Técnicas de Anonimización</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3248;--accent:#6c8fff;--accent2:#a78bfa;--green:#34d399;--red:#f87171;--amber:#fbbf24;--teal:#2dd4bf;--text:#e8eaf6;--text2:#9ca3c0;--text3:#6b7098;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+.header{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--accent);}
+.logo-sub{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
+.tema-badge{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.35rem .9rem;font-size:.78rem;color:var(--text2);}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;overflow-x:auto;}
+.tab-btn{padding:.85rem 1.2rem;background:none;border:none;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .2s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500;}
+.main{max-width:920px;margin:0 auto;padding:2rem;}
+.section{display:none;}.section.active{display:block;}
+.page-title{font-family:'DM Serif Display',serif;font-size:1.7rem;margin-bottom:.3rem;}
+.page-sub{font-size:.83rem;color:var(--text3);margin-bottom:1.8rem;line-height:1.6;}
+.bloque{margin-bottom:2.8rem;}
+.bloque-titulo{font-size:1rem;font-weight:600;color:var(--accent);margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem;}
+.bnum{background:var(--accent);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;}
+.bloque p{font-size:.88rem;color:var(--text2);line-height:1.85;margin-bottom:.75rem;}
+.bloque strong{color:var(--text);font-weight:500;}
+.c-grid{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:1rem 0;}
+.c-grid.cols3{grid-template-columns:repeat(3,1fr);}
+.c-grid.cols4{grid-template-columns:repeat(4,1fr);}
+.c-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;border-left:3px solid var(--accent);}
+.c-card.verde{border-left-color:var(--green);}
+.c-card.teal{border-left-color:var(--teal);}
+.c-card.amber{border-left-color:var(--amber);}
+.c-card.rojo{border-left-color:var(--red);}
+.c-card.morado{border-left-color:var(--accent2);}
+.c-card.full{grid-column:1/-1;}
+.c-card h4{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:.4rem;}
+.c-card p{font-size:.8rem;color:var(--text2);line-height:1.65;margin:0;}
+.tabla{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem;}
+.tabla th{background:var(--surface2);color:var(--text);padding:.65rem .9rem;text-align:left;border:1px solid var(--border);}
+.tabla td{padding:.65rem .9rem;border:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6;}
+.tabla tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.tabla td:first-child{color:var(--accent);font-weight:500;}
+.tabla td.hl{background:rgba(248,113,113,.12)!important;color:var(--red);font-weight:600;}
+.tabla td.hlg{background:rgba(52,211,153,.1)!important;}
+.cita{background:var(--surface);border-left:3px solid var(--accent2);padding:.9rem 1.1rem;border-radius:0 8px 8px 0;margin:1rem 0;font-style:italic;}
+.cita p{font-size:.86rem;color:var(--text2);line-height:1.7;margin:0;}
+.cita .fuente{font-size:.72rem;color:var(--text3);margin-top:.35rem;font-style:normal;}
+.ej{background:var(--surface2);border-radius:8px;padding:.85rem 1rem;margin:1rem 0;border-left:3px solid var(--amber);}
+.ej-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.35rem;font-weight:700;}
+.ej p{font-size:.8rem;color:var(--text2);line-height:1.65;margin:0;}
+.alerta{background:rgba(108,143,255,.08);border:1px solid var(--accent);border-radius:8px;padding:.8rem 1rem;margin:1rem 0;}
+.alerta p{font-size:.82rem;color:var(--text);line-height:1.65;margin:0;}
+.alerta-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.3rem;font-weight:700;}
+.caso{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(108,143,255,.05));border:1px solid var(--accent2);border-radius:10px;padding:1rem 1.1rem;margin:1.2rem 0;}
+.caso-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent2);margin-bottom:.4rem;font-weight:700;}
+.caso h4{font-size:.92rem;color:var(--text);margin-bottom:.4rem;}
+.caso p{font-size:.82rem;color:var(--text2);line-height:1.7;margin:0 0 .5rem;}
+.caso p:last-child{margin-bottom:0;}
+/* RIESGOS PILL */
+.riesgo-grid{display:flex;gap:.7rem;margin:1rem 0;flex-wrap:wrap;}
+.riesgo-pill{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem;text-align:center;}
+.riesgo-pill .ricon{font-size:1.3rem;margin-bottom:.3rem;}
+.riesgo-pill h4{font-size:.83rem;color:var(--text);margin-bottom:.3rem;}
+.riesgo-pill p{font-size:.72rem;color:var(--text3);line-height:1.5;margin:0;}
+/* TECHNIQUE FLOW */
+.tflow{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.tflow-item{display:flex;gap:.8rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.7rem .9rem;}
+.tflow-num{background:var(--surface2);color:var(--accent);width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+.tflow-item h4{font-size:.83rem;color:var(--text);margin-bottom:.15rem;}
+.tflow-item p{font-size:.78rem;color:var(--text2);margin:0;line-height:1.55;}
+/* VS COMPARATIVA */
+.vs-wrap{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;margin:1rem 0;align-items:stretch;}
+.vs-side{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.vs-side h4{font-size:.85rem;color:var(--accent);margin-bottom:.5rem;}
+.vs-side ul{list-style:none;font-size:.78rem;color:var(--text2);line-height:1.7;}
+.vs-side li{margin-bottom:.4rem;padding-left:.9rem;position:relative;}
+.vs-side li:before{content:'—';position:absolute;left:0;color:var(--text3);}
+.vs-mid{display:flex;align-items:center;color:var(--text3);font-size:.78rem;font-weight:600;}
+/* FC Y QUIZ (idéntico al patrón base) */
+.fc-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.fc-count{font-size:.83rem;color:var(--text3);}
+.fc-btns{display:flex;gap:.4rem;}
+.fc-btn{padding:.38rem .9rem;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.8rem;transition:all .2s;}
+.fc-btn:hover{border-color:var(--accent);color:var(--accent);}
+.fc-filter{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;}
+.fc-filter-btn{padding:.3rem .7rem;background:var(--surface);border:1px solid var(--border);border-radius:20px;color:var(--text3);cursor:pointer;font-size:.7rem;transition:all .2s;}
+.fc-filter-btn:hover{border-color:var(--accent);}
+.fc-filter-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.fc-wrap{perspective:1000px;height:220px;cursor:pointer;margin-bottom:.8rem;}
+.fc-card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s;}
+.fc-card.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px solid var(--border);}
+.fc-front{background:var(--surface);}
+.fc-back{background:var(--surface2);transform:rotateY(180deg);border-color:var(--accent);}
+.fc-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.7rem;}
+.fc-front .fc-lbl{color:var(--accent);}
+.fc-back .fc-lbl{color:var(--text3);}
+.fc-q{font-size:.97rem;font-weight:500;line-height:1.55;}
+.fc-a{font-size:.85rem;line-height:1.65;}
+.fc-hint{font-size:.7rem;color:var(--text3);margin-top:.45rem;}
+.fc-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:.5rem;}
+.fc-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:background .3s;}
+.fc-dot.done{background:var(--accent);}
+.fc-dot.cur{background:var(--accent2);}
+.qz-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;}
+.qz-bar{flex:1;height:3px;background:var(--surface2);border-radius:2px;margin:0 .8rem;overflow:hidden;}
+.qz-fill{height:100%;background:var(--accent);transition:width .3s;}
+.qz-info{font-size:.76rem;color:var(--text3);}
+.qz-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:.7rem;}
+.qz-num{font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem;display:flex;align-items:center;gap:.5rem;}
+.qz-badge{background:rgba(167,139,250,.15);color:var(--accent2);padding:.1rem .5rem;border-radius:10px;font-size:.62rem;text-transform:none;letter-spacing:0;font-weight:600;}
+.qz-txt{font-size:.9rem;font-weight:500;line-height:1.55;margin-bottom:.75rem;color:var(--text);white-space:pre-line;}
+.qz-opts{display:flex;flex-direction:column;gap:.38rem;}
+.qz-opt{display:flex;align-items:flex-start;gap:.65rem;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .2s;}
+.qz-opt:hover{border-color:var(--accent);}
+.qz-opt.sel{border-color:var(--accent);background:rgba(108,143,255,.09);}
+.qz-opt.ok{border-color:var(--green);background:rgba(52,211,153,.08);}
+.qz-opt.bad{border-color:var(--red);background:rgba(248,113,113,.08);}
+.qz-opt.show{border-color:var(--green);background:rgba(52,211,153,.05);}
+.opt-l{min-width:20px;height:20px;border-radius:5px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--text3);flex-shrink:0;margin-top:1px;}
+.qz-opt.sel .opt-l{background:var(--accent);color:#fff;}
+.qz-opt.ok .opt-l{background:var(--green);color:#fff;}
+.qz-opt.bad .opt-l{background:var(--red);color:#fff;}
+.qz-opt.show .opt-l{background:var(--green);color:#fff;}
+.opt-t{font-size:.81rem;color:var(--text2);line-height:1.45;}
+.qz-acts{display:flex;gap:.8rem;margin-top:1.1rem;justify-content:center;}
+.btn-p{padding:.6rem 1.8rem;background:var(--accent);border:none;border-radius:9px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;transition:opacity .2s;}
+.btn-p:hover{opacity:.85;}
+.btn-s{padding:.6rem 1.8rem;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;transition:all .2s;}
+.btn-s:hover{border-color:var(--accent);color:var(--accent);}
+.qz-result{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;text-align:center;margin-bottom:1.1rem;}
+.res-score{font-family:'DM Serif Display',serif;font-size:2.8rem;color:var(--accent);}
+.res-lbl{font-size:.8rem;color:var(--text3);margin-top:.2rem;}
+.res-msg{font-size:.88rem;color:var(--text2);margin-top:.75rem;}
+.fb-item{background:var(--surface);border-radius:8px;padding:.75rem;margin-bottom:.45rem;}
+.fb-ok{border-left:3px solid var(--green);}
+.fb-bad{border-left:3px solid var(--red);}
+.fb-q{font-size:.78rem;color:var(--text2);margin-bottom:.28rem;white-space:pre-line;}
+.fb-c{font-size:.75rem;color:var(--green);}
+.fb-w{font-size:.75rem;color:var(--red);}
+.fb-corr{font-size:.73rem;color:var(--green);margin-top:.13rem;}
+@media(max-width:620px){
+.c-grid,.c-grid.cols3,.c-grid.cols4{grid-template-columns:1fr;}
+.vs-wrap{grid-template-columns:1fr;}
+.vs-mid{justify-content:center;padding:.3rem 0;}
+.riesgo-grid{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="logo">Gobierno del Dato</div>
+    <div class="logo-sub">Guía de estudio interactiva</div>
+  </div>
+  <div class="tema-badge">Tema 10 &mdash; Disociación y Técnicas de Anonimización</div>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('resumen',this)">Resumen completo</button>
+  <button class="tab-btn" onclick="showTab('flashcards',this)">Flashcards</button>
+  <button class="tab-btn" onclick="showTab('quiz',this)">Preguntas</button>
+</div>
+<div class="main">
+
+<!-- RESUMEN -->
+<div id="resumen" class="section active">
+<div class="page-title">La disociación de datos y técnicas de anonimización</div>
+<div class="page-sub">Tema 10 completo &mdash; Docente: Jesús Cigales Canga &bull; Material: UNIR + Guía complementaria EIPD</div>
+
+<!-- B1: CONCEPTOS BASE -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">1</span>Conceptos base — el vocabulario imprescindible</div>
+  <p>Antes de hablar de técnicas, hay que tener clarísimos estos términos. Son la base de <strong>todo</strong> el tema, y los exámenes los confunden a propósito porque suenan parecido.</p>
+  <div class="c-grid">
+    <div class="c-card verde">
+      <h4>Disociación</h4>
+      <p>Tratar datos personales de modo que la información resultante <strong>no pueda asociarse</strong> a una persona identificada o identificable (art. 3.f LOPD). Es el objetivo final: llegar a "datos disociados".</p>
+    </div>
+    <div class="c-card teal">
+      <h4>Seudonimización</h4>
+      <p>Tratar los datos de forma que ya no se puedan atribuir a una persona <strong>sin usar información adicional</strong> — pero esa información extra existe y se guarda aparte, bajo medidas de seguridad. Es <strong>reversible</strong>.</p>
+    </div>
+    <div class="c-card amber">
+      <h4>Anonimización</h4>
+      <p>Proceso por el cual deja de ser posible, por medios razonables, establecer el nexo entre un dato y la persona a la que se refiere. A diferencia de la seudonimización, busca ser <strong>irreversible</strong>.</p>
+    </div>
+    <div class="c-card morado full">
+      <h4>Deidentificación</h4>
+      <p>Eliminar identificadores y cuasiidentificadores para dificultar la identificación — pero esto <strong>NO equivale automáticamente</strong> a un conjunto anonimizado. Es un paso, no la meta.</p>
+    </div>
+  </div>
+  <div class="alerta">
+    <div class="alerta-lbl">La diferencia que más se pregunta en examen</div>
+    <p>Seudonimización = reversible, <strong>SÍ aplica RGPD</strong> (sigue siendo dato personal). Anonimización total = irreversible, <strong>NO aplica RGPD</strong> (considerando 26 RGPD). Si en algún momento se puede revertir o reidentificar razonablemente, sigues dentro del RGPD aunque "parezca" anónimo.</p>
+  </div>
+  <p><strong>Tipos de identificadores y datos</strong> — la otra distinción clave:</p>
+  <div class="c-grid">
+    <div class="c-card">
+      <h4>Identificador directo</h4>
+      <p>Por sí solo identifica a la persona. Ejemplos: DNI, nombre completo, huella dactilar, número de la seguridad social.</p>
+    </div>
+    <div class="c-card teal">
+      <h4>Identificador indirecto (cuasiidentificador)</h4>
+      <p>Por sí solo NO identifica, pero <strong>combinado con otros</strong> sí puede hacerlo. Ejemplos clásicos: código postal, fecha de nacimiento, sexo.</p>
+    </div>
+    <div class="c-card amber">
+      <h4>Microdatos</h4>
+      <p>Datos a nivel de registro individual, sin ningún tratamiento de agregación. Mayor riesgo de reidentificación.</p>
+    </div>
+    <div class="c-card morado">
+      <h4>Datos agregados (macrodatos)</h4>
+      <p>Datos tratados como acumulados, medias o variables estadísticas, agrupados en rangos. Menor riesgo, pero no nulo.</p>
+    </div>
+  </div>
+  <div class="ej">
+    <div class="ej-lbl">Para fijar la idea</div>
+    <p>Un seudónimo es como ponerle un apodo a alguien que solo tú (o un tercero de confianza) sabe a quién corresponde: si alguien consigue la "lista de apodos", te identifica. La anonimización real sería borrar esa lista para siempre — pero, como vamos a ver, casi nunca se logra al 100%.</p>
+  </div>
+</div>
+
+<!-- B2: MARCO LEGAL -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">2</span>Marco legal — qué dice la norma y por qué importa la disociación</div>
+  <p>El RGPD, en su <strong>considerando 26</strong>, es explícito: los principios de protección de datos <strong>no se aplican a la información anónima</strong>. Esto convierte a la disociación en una herramienta legal muy potente — permite hacer analítica sin las limitaciones del RGPD, siempre que el riesgo de reidentificación esté razonablemente controlado.</p>
+  <div class="cita">
+    <p>"Los principios de protección de datos no deben aplicarse a la información anónima [...] En consecuencia, el presente Reglamento no afecta al tratamiento de dicha información anónima, inclusive con fines estadísticos o de investigación."</p>
+    <div class="fuente">— Considerando 26, RGPD</div>
+  </div>
+  <p>Pero hay una trampa importante: si el riesgo de reidentificación <strong>se materializa</strong>, vuelves a estar sujeto a todas las obligaciones del RGPD como si nunca hubieras anonimizado nada. La "anonimización" no es un estado permanente garantizado — es una apuesta que puede fallar.</p>
+  <div class="alerta">
+    <div class="alerta-lbl">Idea de examen</div>
+    <p>"Si no hay nombres, no se aplican las normas de protección de datos" → <strong>FALSO</strong>. Lo que importa es si los datos pueden reidentificarse razonablemente. Si pueden, el RGPD se aplica igual, tengan nombre visible o no.</p>
+  </div>
+  <p><strong>Anonimización parcial</strong> — no siempre es posible (ni deseable) anonimizar al 100%, por ejemplo cuando se necesita poder volver a identificar a alguien o se requieren datos muy granulares. En esos casos el resultado no se considera "anonimizado" pero sí se ha dificultado la identificación. El WP29 recomienda añadir medidas adicionales: cifrado, separación de claves, terceros de confianza, acceso restringido por necesidad de saber, y obligaciones de confidencialidad explícitas.</p>
+  <div class="tflow">
+    <div class="tflow-item">
+      <div class="tflow-num">1</div>
+      <div><h4>Reevaluar el riesgo periódicamente</h4><p>Nunca asumas "libero y me olvido" — el riesgo de reidentificación cambia con el tiempo y la tecnología.</p></div>
+    </div>
+    <div class="tflow-item">
+      <div class="tflow-num">2</div>
+      <div><h4>Evaluar si los controles son suficientes</h4><p>Y ajustarlos si ya no lo son.</p></div>
+    </div>
+    <div class="tflow-item">
+      <div class="tflow-num">3</div>
+      <div><h4>Monitorizar y controlar el riesgo de forma continua</h4><p>Especialmente si hay parte de los datos sin anonimizar combinada con la parte anónima.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- B3: TECNICAS MICRODATOS -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">3</span>Técnicas de anonimización en microdatos</div>
+  <p>Las técnicas se agrupan en dos grandes familias según su naturaleza: <strong>aleatorización</strong> (rompen el vínculo dato-persona modificando la veracidad del dato) y <strong>generalización</strong> (diluyen los atributos agrupándolos, reduciendo lo singular de cada individuo). Casi nunca se aplica una sola técnica — se combinan para compensar las debilidades de cada una.</p>
+
+  <p><strong>Técnicas de reducción de atributos</strong> (quitan información):</p>
+  <div class="c-grid cols3">
+    <div class="c-card">
+      <h4>Supresión de identificadores directos</h4>
+      <p>Eliminar nombre, DNI, número de seguridad social... lo más obvio. Es el primer paso, pero por sí solo es insuficiente.</p>
+    </div>
+    <div class="c-card verde">
+      <h4>Agregación / reducción de detalle</h4>
+      <p>Redondear o agrupar en categorías más amplias. Ej: la fecha de nacimiento se reduce al año, el código postal se deja en los dos primeros dígitos.</p>
+    </div>
+    <div class="c-card teal">
+      <h4>Muestreo</h4>
+      <p>Seleccionar solo una parte de los registros en vez de publicar el conjunto completo. Cada vez menos usada con el big data, porque ya no hay limitación de procesamiento.</p>
+    </div>
+  </div>
+
+  <p><strong>Técnicas de modificación de datos</strong> (alteran el dato sin eliminarlo):</p>
+  <div class="c-grid cols3">
+    <div class="c-card amber">
+      <h4>Generalización</h4>
+      <p>Repetir el mismo valor en todas las filas de un atributo, escogiendo el menos singular. En la práctica equivale casi a eliminar el atributo. Ej: cambiar "M"/"H" por un valor neutro como "Z".</p>
+    </div>
+    <div class="c-card rojo">
+      <h4>Adición de ruido</h4>
+      <p>Sumar/restar valores aleatorios a una variable numérica, de forma que la suma total tienda a cero (no distorsiona la media). Útil cuando el dato es muy sensible y se necesita mantener la utilidad estadística.</p>
+    </div>
+    <div class="c-card morado">
+      <h4>Asignación al azar</h4>
+      <p>Sustituir identificadores por valores aleatorios con la misma distribución que la realidad. Muy usada en entornos de testing de software (generar nombres/DNIs ficticios).</p>
+    </div>
+  </div>
+  <div class="c-grid cols3">
+    <div class="c-card">
+      <h4>Permutación / intercambio de datos</h4>
+      <p>Intercambiar valores entre registros parecidos. No altera media, mediana, moda ni desviación típica — pero <strong>falla</strong> si hay fuerte correlación entre los atributos intercambiados (ej. cargo y salario).</p>
+    </div>
+    <div class="c-card verde">
+      <h4>Privacidad diferencial</h4>
+      <p>Añade ruido <strong>a la salida de las consultas</strong>, no al dataset base — los datos originales no se alteran, solo se muestran alterados. Por eso es de las técnicas más robustas.</p>
+    </div>
+    <div class="c-card teal">
+      <h4>Pseudoanonimización</h4>
+      <p>Reduce la vinculabilidad pero no la elimina — y a veces es reversible vía codificación, tablas de correspondencia o función hash (irreversible pero vulnerable a ataques de diccionario).</p>
+    </div>
+  </div>
+
+  <div class="caso">
+    <div class="caso-lbl">Caso resuelto · Por qué la permutación puede fallar</div>
+    <h4>Estudio de ingresos por cargo en una empresa</h4>
+    <p>Si permutas los salarios entre empleados pero <strong>mantienes visible el cargo</strong>, sigue siendo fácil deducir quién es el director ejecutivo y quién el operador — y por tanto inferir sus salarios extremos, aunque los números se hayan movido de fila. La permutación falla cuando hay fuerte correlación entre dos atributos (cargo ↔ salario).</p>
+  </div>
+
+  <p><strong>Técnicas de supresión</strong> — cuando ni reducir ni modificar bastan, se elimina directamente el registro problemático (la fila completa). Introduce distorsión porque no es aleatoria: se elimina justo el caso "raro" que más destacaba.</p>
+
+  <div class="ej">
+    <div class="ej-lbl">Recordatorio rápido</div>
+    <p>Reducción de atributos = quito cosas. Modificación = cambio valores sin quitarlos. Supresión = elimino registros completos. Las tres se combinan en la práctica.</p>
+  </div>
+</div>
+
+<!-- B4: MACRODATOS + K-ANONIMATO -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">4</span>Macrodatos, k-anonimato y sus variantes</div>
+  <p>Para conjuntos grandes (macrodatos) se usan principalmente <strong>métodos basados en restricciones</strong>: supresión de celdas problemáticas, o cambio del esquema de clasificación (modificar los puntos de corte de las categorías, por ejemplo agrupando edades extremas).</p>
+
+  <div class="alerta">
+    <div class="alerta-lbl">k-anonimato — la técnica estrella del tema</div>
+    <p>Creada por <strong>Latanya Sweeney</strong> (Harvard, Data Privacy Lab) en 2002. Un conjunto de datos es <strong>k-anónimo</strong> si, para cada combinación de atributos (cuasiidentificadores), hay al menos <strong>k individuos</strong> que comparten esa misma combinación. Cuanto más alto el valor de k, menor riesgo de inferencia — pero k-anonimato <strong>no impide</strong> los ataques de inferencia por sí solo.</p>
+  </div>
+
+  <div class="caso">
+    <div class="caso-lbl">Ejercicio resuelto · Pregunta real de examen UNIR</div>
+    <h4>Una universidad comparte un dataset de 10 alumnos con género, edad agrupada y diagnóstico</h4>
+    <table class="tabla">
+      <tr><th>Género</th><th>Edad</th><th>Diagnóstico</th></tr>
+      <tr><td>M</td><td>20-24</td><td>Asma</td></tr>
+      <tr><td>M</td><td>20-24</td><td>Diabetes</td></tr>
+      <tr><td>M</td><td>20-24</td><td>Asma</td></tr>
+      <tr><td>F</td><td>25-29</td><td>Lupus</td></tr>
+      <tr><td>F</td><td>25-29</td><td>Lupus</td></tr>
+      <tr><td>F</td><td>25-29</td><td>Lupus</td></tr>
+      <tr><td>M</td><td>30-34</td><td>VIH</td></tr>
+      <tr><td>M</td><td>30-34</td><td>VIH</td></tr>
+      <tr><td>M</td><td>30-34</td><td>VIH</td></tr>
+      <tr class="hl"><td class="hl">F</td><td class="hl">30-34</td><td class="hl">VIH</td></tr>
+    </table>
+    <p><strong>¿Cuál es el valor k del conjunto?</strong> Hay que agrupar por (género, edad): M/20-24 tiene 3 registros, F/25-29 tiene 3, M/30-34 tiene 3 — pero <strong>F/30-34 tiene solo 1 registro</strong> (la fila resaltada). El valor k de todo el conjunto es el del grupo <strong>más pequeño</strong>: <strong>k = 1</strong>. Esa única mujer de 30-34 años queda totalmente singularizada.</p>
+    <p><strong>Pregunta derivada:</strong> en el grupo F/25-29, los tres registros tienen el mismo diagnóstico (Lupus) → si se identifica a una de esas tres personas, automáticamente se sabe que tiene Lupus. Eso es <strong>l-diversity = 1</strong> en ese grupo: no hay variabilidad en el atributo sensible, así que el riesgo de inferencia es máximo aunque el k-anonimato del grupo (3) parezca aceptable.</p>
+  </div>
+
+  <p><strong>l-Diversity</strong> — mejora de k-anonimato: exige que cada clase tenga, además de k individuos, al menos <strong>l valores distintos</strong> en el atributo sensible. Así se evita que, aunque no puedas identificar a la persona exacta, sepas con certeza su diagnóstico solo por pertenecer al grupo.</p>
+
+  <p><strong>t-Closeness</strong> — un paso más: no solo exige diversidad de valores (l-diversity), sino que la <strong>distribución</strong> de esos valores en cada clase de equivalencia sea similar a la distribución en el conjunto total de datos. Se usa cuando es crítico mantener fidelidad estadística con los datos originales.</p>
+
+  <div class="vs-wrap">
+    <div class="vs-side">
+      <h4>k-anonimato resuelve</h4>
+      <ul>
+        <li>Riesgo de singularización (muy bien)</li>
+        <li>Riesgo de vinculabilidad (probabilidad 1/k)</li>
+      </ul>
+    </div>
+    <div class="vs-mid">pero NO resuelve →</div>
+    <div class="vs-side">
+      <h4>Riesgo de inferencia</h4>
+      <ul>
+        <li>Si todos los del grupo comparten el mismo valor sensible (l=1)</li>
+        <li>Para esto se necesita l-diversity o t-closeness</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ej">
+    <div class="ej-lbl">Error típico que pide el examen</div>
+    <p>Si tras aplicar k-anonimato con k=4 un grupo queda con solo 2 registros, la solución <strong>no es</strong> "dejarlo así" ni "borrar el grupo entero" perdiendo toda esa información — la práctica correcta es <strong>reagrupar las categorías</strong> (por ejemplo, ampliar el rango de edad o fusionar categorías) hasta alcanzar el k deseado.</p>
+  </div>
+</div>
+
+<!-- B5: RIESGOS + CASOS HISTORICOS -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">5</span>Los 3 riesgos del WP29 y los casos que lo demostraron</div>
+  <p>El Grupo de Trabajo del Artículo 29 (WP29), en su <em>Opinion 05/2014 on Anonymisation Techniques</em>, identificó tres preguntas clave para medir la robustez real de cualquier técnica de anonimización:</p>
+
+  <div class="riesgo-grid">
+    <div class="riesgo-pill">
+      <div class="ricon">🎯</div>
+      <h4>Singularización<br><em>(singling out)</em></h4>
+      <p>¿Puedo aislar todos o algunos de los registros que identifican a un individuo concreto dentro del conjunto?</p>
+    </div>
+    <div class="riesgo-pill">
+      <div class="ricon">🔗</div>
+      <h4>Vinculabilidad<br><em>(linkability)</em></h4>
+      <p>¿Puedo vincular al menos dos registros del mismo interesado, en la misma base o en dos distintas?</p>
+    </div>
+    <div class="riesgo-pill">
+      <div class="ricon">🧩</div>
+      <h4>Inferencia<br><em>(inference)</em></h4>
+      <p>¿Puedo deducir, con probabilidad significativa, el valor de un atributo a partir de otros atributos conocidos?</p>
+    </div>
+  </div>
+
+  <p>Ninguna técnica cubre perfectamente los tres riesgos a la vez — por eso casi siempre hace falta combinar varias. Tabla resumen del WP29:</p>
+  <table class="tabla">
+    <tr><th>Técnica</th><th>Singularización</th><th>Vinculabilidad</th><th>Inferencia</th></tr>
+    <tr><td>Seudonimización</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>Adición de ruido</td><td>Sí</td><td>Puede que no</td><td>Puede que no</td></tr>
+    <tr><td>Sustitución</td><td>Sí</td><td>Sí</td><td>Puede que no</td></tr>
+    <tr><td>Agregación y k-anonimato</td><td>No</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>l-Diversity / t-Closeness</td><td>No</td><td>Sí</td><td>Puede que no</td></tr>
+    <tr><td>Privacidad diferencial</td><td>Puede que no</td><td>Puede que no</td><td>Puede que no</td></tr>
+    <tr><td>Hash / Tokens</td><td>Sí</td><td>Sí</td><td>Puede que no</td></tr>
+  </table>
+  <p style="font-size:.75rem;color:var(--text3);margin-top:-.5rem">"Sí" en esta tabla significa que la técnica <strong>presenta</strong> ese riesgo (es decir, NO lo resuelve). Fíjate cómo k-anonimato es la única familia con "No" en singularización — pero sigue marcando "Sí" en inferencia, justo lo que viste en el ejercicio del bloque anterior.</p>
+
+  <p><strong>Tres casos reales que demostraron que "anonimizado" no siempre significa seguro:</strong></p>
+
+  <div class="caso">
+    <div class="caso-lbl">Caso 1 · AOL (2006)</div>
+    <h4>20 millones de búsquedas de 650.000 usuarios, supuestamente anonimizadas</h4>
+    <p>AOL eliminó nombres de usuario e IPs, sustituyéndolos por un número identificador para poder correlacionar búsquedas del mismo usuario. Pero el <strong>contenido</strong> de las propias búsquedas (lo que la gente busca sobre sí misma, su ciudad, sus problemas) permitió identificar a usuarios concretos. Resultado: escándalo, dimisión del CTO, cierre del proyecto AOL Research.</p>
+  </div>
+
+  <div class="caso">
+    <div class="caso-lbl">Caso 2 · GIC Massachusetts — el caso que originó el k-anonimato</div>
+    <h4>Latanya Sweeney identifica el historial médico del gobernador por 20 dólares</h4>
+    <p>Una agencia gubernamental liberó datos hospitalarios "anonimizados" (sin nombre ni DNI) pero conservando código postal, fecha de nacimiento y sexo. Sweeney compró el censo electoral público de Cambridge por 20 USD — que sí tenía nombre, dirección, código postal, fecha de nacimiento y sexo — y cruzó ambas fuentes (inner-join). Solo 6 personas de la ciudad compartían la fecha de nacimiento del gobernador; de ellas, solo 3 eran hombres; de ellos, solo 1 vivía en su código postal. Sweeney le envió su propio historial médico al despacho del gobernador.</p>
+    <p>Su estudio posterior demostró que con solo <strong>código postal completo + fecha de nacimiento + sexo</strong> se podía identificar de forma única al <strong>87% de la población de EE. UU.</strong></p>
+  </div>
+
+  <div class="caso">
+    <div class="caso-lbl">Caso 3 · Netflix Prize (2006)</div>
+    <h4>Un millón de valoraciones "anónimas" de medio millón de usuarios</h4>
+    <p>Netflix publicó calificaciones de películas (sin nombre, solo un ID de enlace) para un concurso de algoritmos de recomendación. Investigadores de la Universidad de Texas (Narayanan y Shmatikov) demostraron que con solo conocer <strong>6 valoraciones</strong> de un usuario (fuera del top 5 de popularidad) se podía identificar su registro completo cruzándolo con valoraciones públicas de IMDb. Terminó en demanda colectiva y cancelación del segundo concurso (que iba a incluir edad, género y código postal).</p>
+  </div>
+
+  <div class="alerta">
+    <div class="alerta-lbl">El hilo común de los 3 casos</div>
+    <p>En todos, la reidentificación se logró por <strong>cruce de datos (inner-join)</strong> con una fuente externa — nunca rompiendo la técnica de anonimización en sí. El riesgo no está solo en tus datos, está en lo que existe fuera y se puede combinar con ellos.</p>
+  </div>
+</div>
+
+<!-- B6: UE vs USA + EIP -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">6</span>UE vs. EE. UU. y la Evaluación de Impacto (EIP)</div>
+  <p>No todos los marcos regulatorios entienden el riesgo aceptable de la misma forma. Esta comparativa es contenido <strong>complementario</strong> (no está en el manual oficial de UNIR, pero conecta directamente con lo que viste de reidentificación):</p>
+
+  <div class="vs-wrap">
+    <div class="vs-side">
+      <h4>🇪🇺 Unión Europea</h4>
+      <ul>
+        <li>Prevalece el derecho fundamental a la protección de datos</li>
+        <li>Riesgo aceptable: próximo a cero (umbral ~10⁻⁵ / 10⁻⁶)</li>
+        <li>Exige minimización y justificación proactiva</li>
+        <li>Marco único ("Omnibus"): el RGPD para todo</li>
+        <li>Uso de datos limitado al propósito estrictamente necesario</li>
+      </ul>
+    </div>
+    <div class="vs-mid">vs.</div>
+    <div class="vs-side">
+      <h4>🇺🇸 Estados Unidos</h4>
+      <ul>
+        <li>Equilibrio (trade-off) entre utilidad del dato y riesgo</li>
+        <li>Riesgo aceptable: bajo pero no necesariamente nulo (hasta ~1%)</li>
+        <li>Criterio de experto y razonabilidad, no umbral fijo</li>
+        <li>Marco fragmentado: más de 200 leyes estatales/sectoriales</li>
+        <li>Uso de datos más flexible y amplio</li>
+      </ul>
+    </div>
+  </div>
+
+  <p><strong>La Evaluación de Impacto en la Protección de Datos (EIP / EIPD)</strong> es el proceso sistemático para analizar los riesgos que un tratamiento de datos supone para los derechos de las personas — el desarrollo práctico del "enfoque continuo de gestión de riesgo" que recomienda el WP29.</p>
+
+  <div class="alerta">
+    <div class="alerta-lbl">¿Cuándo es obligatoria? — Criterios AEPD</div>
+    <p>Si un tratamiento cumple <strong>2 o más</strong> de estos 11 criterios, la EIP es obligatoria: perfilado/valoración de sujetos · decisiones automatizadas con efectos relevantes · observación o geolocalización sistemática · datos sensibles/categorías especiales · tratamiento a gran escala · cruce o combinación de bases de datos · datos de personas vulnerables (menores, exclusión social) · tecnologías innovadoras (Big Data, IA) · tratamientos que dificultan el ejercicio de derechos.</p>
+  </div>
+
+  <p><strong>"Tratamiento a gran escala"</strong> se determina por 4 factores: número de interesados afectados, volumen y variedad de datos, duración del tratamiento, y extensión geográfica.</p>
+
+  <p><strong>Metodología simplificada de una EIP</strong>:</p>
+  <div class="tflow">
+    <div class="tflow-item">
+      <div class="tflow-num">1</div>
+      <div><h4>Descripción del tratamiento</h4><p>Finalidades, flujos de datos, actores implicados y periodos de conservación.</p></div>
+    </div>
+    <div class="tflow-item">
+      <div class="tflow-num">2</div>
+      <div><h4>Análisis de necesidad y proporcionalidad</h4><p>Justificar que no existen medios menos intrusivos para lograr el mismo objetivo.</p></div>
+    </div>
+    <div class="tflow-item">
+      <div class="tflow-num">3</div>
+      <div><h4>Gestión de riesgos</h4><p><strong>Riesgo inherente</strong> (sin medidas) → aplicar <strong>medidas mitigadoras</strong> (técnicas, organizativas, jurídicas) → <strong>riesgo residual</strong> (lo que queda).</p></div>
+    </div>
+    <div class="tflow-item">
+      <div class="tflow-num">4</div>
+      <div><h4>Dictamen de viabilidad</h4><p>Si el riesgo residual sigue siendo "muy alto", hay que consultar a la autoridad de control o desistir del tratamiento.</p></div>
+    </div>
+  </div>
+
+  <div class="ej">
+    <div class="ej-lbl">Conexión con lo ya visto</div>
+    <p>Las técnicas de anonimización del bloque 3 y 4 son, en la práctica, las "medidas mitigadoras técnicas" de una EIP. El riesgo residual que queda después de aplicar k-anonimato, ruido o permutación es exactamente lo que una EIP tiene que documentar y justificar como aceptable.</p>
+  </div>
+</div>
+
+<!-- B7: PRINCIPIOS DW -->
+<div class="bloque">
+  <div class="bloque-titulo"><span class="bnum">7</span>Principios para construir un data warehouse con menor riesgo</div>
+  <p>Cierre del tema: cinco principios prácticos para reducir la exposición a un evento de revelación de datos al diseñar un DW desde cero.</p>
+
+  <div class="c-grid">
+    <div class="c-card verde">
+      <h4>1. Separación funcional</h4>
+      <p>El acceso a los datos se limita exclusivamente a las funciones para las que cada usuario está autorizado — sin posibilidad de acceder a información adicional.</p>
+    </div>
+    <div class="c-card teal">
+      <h4>2. Agregación de datos</h4>
+      <p>Siempre que no interfiera con la finalidad del estudio, agregar complica la reidentificación. Los registros no agregados son siempre más fáciles de reidentificar.</p>
+    </div>
+    <div class="c-card amber full">
+      <h4>3. Deidentificación de registros</h4>
+      <p>Eliminar identificadores directos e indirectos, o sustituirlos por seudónimos. <strong>Cuidado:</strong> no hay que ser maximalista — la combinación de varios atributos "inocuos" (edad + geolocalización + sexo + diagnóstico clínico + información poco frecuente como enfermedades raras o profesiones inusuales) puede seguir permitiendo la reidentificación, aunque cada dato por separado parezca seguro.</p>
+    </div>
+    <div class="c-card morado full">
+      <h4>4. Aplicación combinada de técnicas sobre microdatos</h4>
+      <p>Ninguna técnica sola es suficiente — combínalas para reducir los riesgos de singularización, vinculabilidad e inferencia simultáneamente.</p>
+    </div>
+  </div>
+
+  <p><strong>Guía rápida — qué técnica usar según el caso:</strong></p>
+  <table class="tabla">
+    <tr><th>Técnica</th><th>Cuándo usarla</th><th>Tipo de atributo</th></tr>
+    <tr><td>Supresión de atributos</td><td>Cuando el atributo no es necesario para el estudio</td><td>Todos</td></tr>
+    <tr><td>Supresión de registros</td><td>Presencia de registros atípicos / outliers</td><td>Todo el registro</td></tr>
+    <tr><td>Enmascaramiento de caracteres</td><td>Conservar parte del valor original con anonimato suficiente</td><td>Identificador directo</td></tr>
+    <tr><td>Pseudonimización</td><td>Necesitas distinguir registros sin conservar el valor original</td><td>Identificador directo</td></tr>
+    <tr><td>Generalización</td><td>Modificar registros para que sean menos precisos pero sigan siendo útiles</td><td>Todos</td></tr>
+    <tr><td>Permutación de datos</td><td>No necesitas analizar relaciones entre atributos a nivel de registro</td><td>Todos</td></tr>
+    <tr><td>Perturbación / adición de ruido</td><td>Ligeras modificaciones sin alterar el estudio global</td><td>Identificadores directos o de análisis</td></tr>
+    <tr><td>Agregación de datos</td><td>Los datos agregados ya son suficientes para el estudio</td><td>Identificadores indirectos</td></tr>
+  </table>
+
+  <div class="alerta">
+    <div class="alerta-lbl">La tensión que resume todo el tema</div>
+    <p>Toda técnica de anonimización <strong>reduce la utilidad</strong> de los datos — se pierde carga de información. Elegir la técnica correcta significa decidir <strong>qué utilidad necesitas conservar</strong> para tu análisis. Si un estudio requiere precisión geográfica fina, generalizar el código postal puede no ser viable — y entonces el riesgo de reidentificación sube. No hay solución gratis: siempre se negocia entre privacidad y utilidad.</p>
+  </div>
+</div>
+
+</div><!-- /resumen (se completa por bloques) -->
+
+<!-- FLASHCARDS -->
+<div id="flashcards" class="section">
+<div class="page-title">Flashcards — Tema 10</div>
+<div class="page-sub">Haz clic en la tarjeta para voltearla. Usa las teclas ← → para navegar y Espacio para voltear.</div>
+<div class="fc-nav">
+  <span class="fc-count" id="fc-count">1 / 1</span>
+  <div class="fc-btns">
+    <button class="fc-btn" onclick="fcMove(-1)">&#8592; Anterior</button>
+    <button class="fc-btn" onclick="fcMove(1)">Siguiente &#8594;</button>
+  </div>
+</div>
+<div class="fc-wrap" onclick="fcFlip()">
+  <div class="fc-card" id="fc-card">
+    <div class="fc-face fc-front"><div class="fc-lbl">Pregunta</div><div class="fc-q" id="fc-q">Cargando...</div><div class="fc-hint">Toca para ver la respuesta</div></div>
+    <div class="fc-face fc-back"><div class="fc-lbl">Respuesta</div><div class="fc-a" id="fc-a">Cargando...</div></div>
+  </div>
+</div>
+<div class="fc-dots" id="fc-dots"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="section">
+<div class="page-title">Preguntas tipo examen</div>
+<div class="page-sub">10 preguntas aleatorias por ronda — incluye preguntas reales de exámenes anteriores de la UNIR (marcadas con la etiqueta correspondiente)</div>
+<div id="quiz-content"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'flashcards' && !fcReady) initFC();
+  if (id === 'quiz' && !quizReady) initQuiz();
+}
+
+var fcs = [
+  {q:"¿Qué es la disociación de datos según la LOPD?",a:"Todo tratamiento de datos personales de modo que la información que se obtenga no pueda asociarse a persona identificada o identificable (art. 3.f LOPD 15/1999)."},
+  {q:"¿Qué diferencia hay entre seudonimización y anonimización en cuanto a reversibilidad y aplicación del RGPD?",a:"Seudonimización: reversible (con información adicional guardada por separado), SÍ aplica el RGPD. Anonimización: busca ser irreversible, NO aplica el RGPD (considerando 26)."},
+  {q:"¿Qué es un cuasiidentificador o identificador indirecto?",a:"Un atributo que por sí solo no identifica a una persona, pero combinado con otros atributos sí puede hacerlo. Ejemplos clásicos: código postal, fecha de nacimiento, sexo."},
+  {q:"¿Qué dice el considerando 26 del RGPD sobre los datos anónimos?",a:"Que los principios de protección de datos no se aplican a la información anónima, ni a los datos convertidos en anónimos de forma que el interesado no sea identificable, incluso con fines estadísticos o de investigación."},
+  {q:"Si una empresa anonimiza datos pero el riesgo de reidentificación se materializa, ¿qué pasa legalmente?",a:"Vuelve a estar sujeta a todas las obligaciones derivadas de la normativa de protección de datos, como si nunca hubiera anonimizado nada."},
+  {q:"¿Qué es la anonimización parcial y cuándo se usa?",a:"Cuando no es posible la disociación completa (por ejemplo, se necesita reidentificar a sujetos o mantener datos granulares). El resultado no se considera anonimizado, pero sí dificulta la identificación. Requiere medidas de seguridad adicionales."},
+  {q:"¿Cuáles son las dos familias de técnicas de anonimización según su naturaleza?",a:"Aleatorización (modifica la veracidad de los datos, rompe el vínculo dato-persona) y Generalización (diluye atributos agrupándolos, reduce la singularidad de cada individuo)."},
+  {q:"¿En qué consiste la técnica de adición de ruido y para qué sirve principalmente?",a:"Sumar/restar valores aleatorios a una variable numérica de forma que la suma total tienda a cero (no distorsiona la media). Útil cuando los atributos son muy sensibles."},
+  {q:"¿Por qué puede fallar la técnica de permutación de datos?",a:"Cuando existe una fuerte correlación entre dos atributos (ej. categoría laboral y salario), permutar uno permite inferir el otro igualmente, ya que los valores extremos siguen siendo identificables por el atributo no permutado."},
+  {q:"¿Qué hace diferente a la privacidad diferencial frente a las demás técnicas de aleatorización?",a:"No altera el dataset base — solo añade ruido a la salida de las consultas. Los datos originales permanecen intactos; lo que se ve alterado es la respuesta que recibe quien consulta."},
+  {q:"¿Qué es la pseudoanonimización y qué dos tipos de seudónimos existen?",a:"Técnica que sustituye identificadores por seudónimos, reduciendo (no eliminando) la vinculabilidad. Puede ser reversible (codificación o tabla de correspondencia) o irreversible (función hash)."},
+  {q:"¿Quién desarrolló el k-anonimato y en qué año?",a:"Latanya Sweeney, en un artículo de 2002: 'k-Anonymity: a model for protecting privacy', siendo profesora vinculada a la Universidad de Harvard."},
+  {q:"¿Qué significa que un conjunto de datos sea k-anónimo?",a:"Que para cada combinación de cuasiidentificadores, existen al menos k individuos que comparten esa misma combinación de atributos en el conjunto."},
+  {q:"¿k-anonimato resuelve el riesgo de inferencia?",a:"No. k-anonimato es muy efectivo contra singularización y reduce vinculabilidad (a probabilidad 1/k), pero NO impide los ataques de inferencia por sí solo."},
+  {q:"¿Qué es l-diversity y qué problema de k-anonimato resuelve?",a:"Exige que cada clase de equivalencia tenga al menos l valores diferentes en el atributo sensible. Resuelve el problema de que todos los miembros de un grupo k-anónimo compartan el mismo valor sensible (l=1), lo que permitiría inferencia directa."},
+  {q:"¿Qué añade t-closeness respecto a l-diversity?",a:"Exige además que la distribución de los valores del atributo sensible en cada clase de equivalencia sea similar a la distribución en el conjunto total de datos, no solo que haya diversidad de valores."},
+  {q:"En el ejercicio de la universidad con 10 alumnos (género, edad, diagnóstico), ¿por qué el valor k del conjunto es 1?",a:"Porque aunque la mayoría de grupos (género+edad) tienen 3 registros, el grupo de mujeres de 30-34 años tiene un único registro — y el valor k de todo el conjunto lo determina siempre el grupo MÁS PEQUEÑO."},
+  {q:"En ese mismo ejercicio, ¿por qué el grupo de mujeres 25-29 años tiene l-diversity = 1?",a:"Porque las tres mujeres de ese grupo tienen exactamente el mismo diagnóstico (Lupus) — no hay ninguna variabilidad en el atributo sensible, así que identificar a una persona del grupo revela su diagnóstico con certeza."},
+  {q:"¿Cuáles son los 3 riesgos de las técnicas de anonimización según el WP29?",a:"Singularización (singling out): aislar registros de un individuo. Vinculabilidad (linkability): conectar al menos dos registros del mismo interesado. Inferencia (inference): deducir el valor de un atributo a partir de otros."},
+  {q:"Según la tabla del WP29, ¿qué técnicas presentan riesgo de inferencia ('Sí')?",a:"Seudonimización y Agregación/k-anonimato presentan riesgo de inferencia ('Sí'). Adición de ruido, l-Diversity/t-Closeness, Privacidad diferencial y Hash/Tokens son 'puede que no'."},
+  {q:"¿Qué pasó en el caso AOL (2006)?",a:"AOL publicó 20 millones de búsquedas de 650.000 usuarios anonimizando nombre e IP, pero el contenido de las propias búsquedas permitió identificar a usuarios concretos. Terminó con la dimisión del CTO y el cierre del proyecto."},
+  {q:"¿Cómo identificó Latanya Sweeney el historial médico del gobernador de Massachusetts?",a:"Cruzó (inner-join) un dataset hospitalario 'anonimizado' (con código postal, fecha de nacimiento y sexo) con el censo electoral público de Cambridge (comprado por 20 USD), que contenía esos mismos datos junto con nombre y dirección."},
+  {q:"¿Qué porcentaje de la población de EE. UU. demostró Sweeney que era identificable con solo código postal completo, fecha de nacimiento y sexo?",a:"El 87% de la población de EE. UU. podía identificarse de forma única combinando solo esos tres datos aparentemente inofensivos."},
+  {q:"¿Qué pasó en el caso Netflix Prize?",a:"Netflix publicó un millón de valoraciones de películas con un ID anónimo. Investigadores de la Universidad de Texas demostraron que con solo 6 valoraciones de un usuario se podía reidentificarlo cruzando con valoraciones públicas de IMDb."},
+  {q:"¿Qué tienen en común los casos AOL, GIC/Massachusetts y Netflix Prize?",a:"En los tres, la reidentificación se logró mediante cruce de datos (inner-join) con una fuente externa — no rompiendo la técnica de anonimización en sí, sino combinándola con información disponible fuera del dataset."},
+  {q:"¿Cuál es la diferencia de filosofía entre la UE y EE. UU. respecto al riesgo de reidentificación aceptable?",a:"UE: prevalece el derecho fundamental, riesgo aceptable próximo a cero (umbral ~10⁻⁵/10⁻⁶), marco único (RGPD). EE. UU.: equilibrio (trade-off) entre utilidad y riesgo, umbral más permisivo (hasta ~1%), marco fragmentado en cientos de leyes."},
+  {q:"¿Cuándo es obligatoria una Evaluación de Impacto en la Protección de Datos (EIP) según los criterios AEPD?",a:"Cuando el tratamiento cumple 2 o más de 11 criterios: perfilado, decisiones automatizadas con efectos relevantes, observación sistemática, datos sensibles, tratamiento a gran escala, cruce de bases de datos, datos de personas vulnerables, tecnologías innovadoras, entre otros."},
+  {q:"¿Qué 4 factores determinan que un tratamiento sea 'a gran escala'?",a:"Número de interesados afectados, volumen y variedad de los datos, duración del tratamiento, y extensión geográfica."},
+  {q:"¿Cuáles son las 4 fases de la metodología simplificada de una EIP?",a:"1) Descripción del tratamiento. 2) Análisis de necesidad y proporcionalidad. 3) Gestión de riesgos (riesgo inherente → medidas mitigadoras → riesgo residual). 4) Dictamen de viabilidad."},
+  {q:"¿Qué se debe hacer si el riesgo residual de una EIP sigue siendo 'muy alto' tras aplicar medidas mitigadoras?",a:"Consultar a la autoridad de control competente o desistir directamente del tratamiento."},
+  {q:"¿Cuáles son los 4 principios para construir un data warehouse con menor riesgo de revelación de datos?",a:"1) Separación funcional (acceso solo a lo autorizado). 2) Agregación de datos. 3) Deidentificación de registros (sin ser maximalista). 4) Aplicación combinada de técnicas de anonimización."},
+  {q:"¿Por qué eliminar solo identificadores directos e indirectos no garantiza anonimización real en un data warehouse?",a:"Porque la combinación de varios atributos aparentemente inocuos (edad + geolocalización + sexo + diagnóstico + datos poco frecuentes) puede seguir permitiendo la reidentificación, aunque cada dato por separado parezca seguro."},
+  {q:"Según la guía de orientación de técnicas, ¿cuándo conviene usar generalización en vez de pseudonimización?",a:"Generalización: cuando quieres modificar registros para que sean menos precisos pero útiles, aplicable a todos los tipos de atributo. Pseudonimización: cuando necesitas distinguir registros sin conservar ninguna parte del valor original, específico para identificadores directos."},
+  {q:"¿Cuál es la tensión fundamental que resume todo el tema de anonimización?",a:"Toda técnica de anonimización reduce la utilidad de los datos. Elegir la técnica correcta significa decidir qué utilidad necesitas conservar — no existe una solución que dé privacidad total sin coste en utilidad analítica."},
+  {q:"¿Qué significa que 'el riesgo de vinculabilidad de k-anonimato es de 1/k'?",a:"Que si un atacante logra vincular un registro a un grupo, la probabilidad de identificar exactamente a la persona correcta dentro de ese grupo es 1 entre k, ya que hay k individuos indistinguibles entre sí en esa clase."}
+];
+
+var fcIdx=0, fcReady=false;
+function initFC(){fcReady=true;renderFC();}
+function renderFC(){
+  var fc=fcs[fcIdx];
+  document.getElementById('fc-q').textContent=fc.q;
+  document.getElementById('fc-a').textContent=fc.a;
+  document.getElementById('fc-count').textContent=(fcIdx+1)+' / '+fcs.length;
+  document.getElementById('fc-card').classList.remove('flipped');
+  document.getElementById('fc-dots').innerHTML=fcs.map(function(_,i){
+    return '<div class="fc-dot '+(i===fcIdx?'cur':i<fcIdx?'done':'')+'"></div>';
+  }).join('');
+}
+function fcFlip(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcMove(d){fcIdx=(fcIdx+d+fcs.length)%fcs.length;renderFC();}
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('flashcards').classList.contains('active'))return;
+  if(e.key==='ArrowRight')fcMove(1);
+  if(e.key==='ArrowLeft')fcMove(-1);
+  if(e.key===' '){e.preventDefault();fcFlip();}
+});
+
+var allQ=[
+  // ===== PREGUNTAS REALES DE EXAMEN UNIR (etiquetadas) =====
+  {q:"Por favor, identifica de entre las siguientes técnicas, qué técnica de anonimización presenta un riesgo de vinculabilidad, no presenta riesgo de singularización, y sí presenta riesgo de inferencia:",opts:["Pseudonimización","Adición de ruido","K-anonymity (agregación y k-anonimato)","Todas las anteriores"],c:2,tag:"Examen UNIR 2020B/2022B"},
+  {q:"En qué casos de los siguientes, NO se recomienda la realización de una evaluación de impacto:",opts:["Cuando el tratamiento afecta a un número elevado de personas","Cuando se traten grandes volúmenes de datos personales","Cuando existan transferencias internacionales","Cuando el tratamiento es esporádico, limitado y no afecta a personas de interés público"],c:3,tag:"Examen UNIR 2022B"},
+  {q:"Una empresa de salud aplica permutación cruzada a los ingresos y códigos postales de pacientes con niveles similares de edad, para proteger su identidad sin perder valor estadístico.\n\n¿Qué ventaja principal ofrece esta técnica?",opts:["Reduce la calidad del análisis estadístico","Garantiza anonimato irreversible","Permite mantener distribuciones estadísticas clave (media, mediana, moda)","Mejora la diversidad l automáticamente"],c:2,tag:"Examen UNIR 2025A"},
+  {q:"Una institución educativa quiere hacer públicos los resultados académicos agrupados por curso y sexo. Tras aplicar k-anonimato con k = 4, en un grupo (mujeres de informática) solo hay 2 registros.\n\n¿Qué recomendación debería aplicarse?",opts:["No hay problema, k = 2 es suficiente","Eliminar el grupo completamente","Reagrupar las categorías para aumentar el k","Aplicar l-diversity sobre los mismos datos"],c:2,tag:"Examen UNIR 2025A"},
+  {q:"Una universidad quiere compartir un dataset de 10 alumnos (género, edad agrupada en rangos de 5 años, diagnóstico), tras eliminar el nombre:\n\nM 20-24 Asma / M 20-24 Diabetes / M 20-24 Asma / F 25-29 Lupus / F 25-29 Lupus / F 25-29 Lupus / M 30-34 VIH / M 30-34 VIH / M 30-34 VIH / F 30-34 VIH\n\n¿Cuál es el valor k de anonimato del conjunto?",opts:["k = 1","k = 2","k = 3","k = 4"],c:0,tag:"Examen UNIR 2025B"},
+  {q:"Sobre el mismo dataset anterior, un investigador señala que si se compromete la identidad de un individuo del grupo de mujeres de 25-29 años, se sabría directamente que padece Lupus.\n\n¿Qué nivel de l-diversity presenta ese grupo?",opts:["l = 1","l = 2","l = 3","l = 4"],c:0,tag:"Examen UNIR 2025B"},
+  {q:"Una aseguradora aplica generalización sobre un dataset que contiene edad, código postal completo y sexo. Agrupa la edad por rangos de 10 años y reduce el código postal a los tres primeros dígitos.\n\n¿Qué tipo de técnica ha aplicado?",opts:["Permutación","Agregación / Generalización","Adición de ruido","Pseudonimización"],c:1,tag:"Examen UNIR 2025C"},
+  {q:"Una empresa farmacéutica quiere publicar estadísticas de ventas, pero algunos registros incluyen solo un paciente con determinada enfermedad en una zona rural. Deciden eliminar estos registros.\n\n¿Qué técnica están aplicando?",opts:["Permutación","Pseudoanonimización","Supresión de registros","Generalización"],c:2,tag:"Examen UNIR 2025C"},
+  {q:"Una empresa utiliza differential privacy (privacidad diferencial) para responder a consultas sobre salarios medios, alterando ligeramente los resultados para proteger la identidad individual.\n\n¿Cuál es la principal característica de esta técnica?",opts:["Sustituye identificadores por seudónimos","Aplica cambios directamente sobre el dataset base","Aplica ruido a los resultados de las consultas, sin alterar el dataset base","Permite identificar sujetos de alto riesgo"],c:2,tag:"Examen UNIR 2025D"},
+  {q:"Una empresa publica un conjunto de datos anonimizados con información sobre pacientes de una clínica: edad agrupada, código postal truncado y enfermedad. En uno de los grupos de edad y código postal solo hay un registro.\n\n¿Qué riesgo de reidentificación está presente?",opts:["Inferencia","Vinculabilidad","Singularización","Supresión"],c:2,tag:"Examen UNIR 2025D"},
+  {q:"Un dataset ha sido tratado mediante generalización y supresión parcial. Un atacante lo cruza con otra base de datos donde aparecen algunos de los mismos atributos, logrando identificar al menos a cinco personas.\n\n¿Qué riesgo se ha materializado?",opts:["Singularización","Vinculabilidad","Transparencia","Inferencia"],c:1,tag:"Examen UNIR 2025E"},
+  {q:"Una universidad publica datos de rendimiento académico por titulación, edad y género. Aunque los datos están agregados, se puede deducir fácilmente que una única estudiante de doctorado con más de 60 años obtuvo un suspenso en una asignatura concreta.\n\n¿Qué tipo de riesgo se está produciendo?",opts:["Ruido estadístico","Inferencia","Identificación directa","Vinculabilidad"],c:1,tag:"Examen UNIR 2025E"},
+  {q:"Una startup analiza redes sociales para detectar tendencias de consumo y argumenta que no necesita aplicar el RGPD porque trabaja con datos \"anonimizados\".\n\n¿Cuál de estas afirmaciones es correcta?",opts:["Si no hay nombres, no se aplican las normas de protección de datos","Los datos solo se consideran personales si se obtienen con consentimiento","Si los datos pueden reidentificarse razonablemente, se aplica el RGPD igualmente","No se aplica el RGPD si se usan algoritmos automáticos"],c:2,tag:"Examen UNIR 2025E"},
+
+  // ===== PREGUNTAS GENERADAS A PARTIR DEL CONTENIDO DEL TEMA =====
+  {q:"Según la LOPD (art. 3.f), ¿cómo se define el procedimiento de disociación?",opts:["Todo tratamiento de datos personales mediante cifrado reversible","Todo tratamiento de datos personales de modo que la información obtenida no pueda asociarse a persona identificada o identificable","Toda eliminación física de archivos con datos personales","Todo tratamiento de datos que use seudónimos"],c:1},
+  {q:"¿Qué establece el considerando 26 del RGPD respecto a la información anónima?",opts:["Que sigue aplicándose el RGPD igual que a datos personales","Que los principios de protección de datos no se aplican a la información anónima","Que solo se exime del RGPD si hay consentimiento expreso","Que la información anónima debe destruirse a los 5 años"],c:1},
+  {q:"¿Cuál es la diferencia clave entre seudonimización y anonimización respecto a la reversibilidad?",opts:["Ambas son irreversibles por definición","La seudonimización es reversible (mediante información adicional); la anonimización busca ser irreversible","La anonimización es siempre reversible mediante hash","No hay diferencia, son sinónimos"],c:1},
+  {q:"¿Qué es un identificador directo, a diferencia de uno indirecto?",opts:["Un atributo que combinado con otros permite identificar a alguien","Un atributo que por sí solo identifica de forma inequívoca a una persona (ej. DNI, nombre)","Un atributo que nunca permite identificación","Un dato que solo aparece en bases de datos públicas"],c:1},
+  {q:"¿Qué diferencia hay entre microdatos y datos agregados?",opts:["Los microdatos están siempre cifrados","Los microdatos son a nivel de registro individual; los datos agregados han sido tratados con medias, sumas o agrupados en rangos","No existe diferencia práctica","Los datos agregados tienen mayor riesgo de reidentificación que los microdatos"],c:1},
+  {q:"¿Qué clasificación de técnicas de anonimización corresponde a 'modificar un valor en un atributo repitiéndolo en todas las filas, generalmente el menos singular'?",opts:["Supresión de registros","Generalización","Privacidad diferencial","Permutación"],c:1},
+  {q:"En la técnica de adición de ruido, ¿qué condición debe cumplir la suma de los valores añadidos para no distorsionar la variable?",opts:["Debe ser siempre positiva","Debe tender a cero","Debe ser igual a la media original","Debe duplicar el valor original"],c:1},
+  {q:"¿Cuál de las siguientes es una debilidad típica de la técnica de permutación de datos?",opts:["Altera la media aritmética de la variable","Es muy difícil de aplicar técnicamente","Ofrece malos resultados cuando hay fuerte correlación entre los atributos intercambiados","No se puede aplicar nunca a datos numéricos"],c:2},
+  {q:"¿Qué hace única a la privacidad diferencial frente a otras técnicas de aleatorización?",opts:["Se aplica directamente sobre el dataset base, alterándolo permanentemente","Solo funciona con identificadores directos","No produce alteración de los datos originales; solo se muestran alterados en la salida de las consultas","Elimina por completo el riesgo de inferencia"],c:2},
+  {q:"¿Cuál es la principal debilidad de la pseudoanonimización mediante función hash?",opts:["Es completamente irreversible y nunca puede ser atacada","Aunque es irreversible, es vulnerable a ataques que buscan obtener el identificador original (ej. diccionario)","No puede aplicarse a campos como el DNI","Requiere consentimiento explícito siempre"],c:1},
+  {q:"¿Quién desarrolló la técnica de k-anonimato y en qué contexto académico?",opts:["Philip Kotler, en el ámbito del marketing","Latanya Sweeney, profesora vinculada a Harvard, en un artículo de 2002","Ann Cavoukian, en el contexto de Privacy by Design","El Grupo de Trabajo del Artículo 29"],c:1},
+  {q:"¿Qué significa exactamente que un conjunto de datos sea '4-anónimo'?",opts:["Que tiene 4 columnas de identificadores","Que cada combinación de atributos del individuo aparece compartida por al menos otros 3 individuos más (4 en total)","Que se ha aplicado 4 veces la técnica de generalización","Que el riesgo de reidentificación es del 4%"],c:1},
+  {q:"¿Qué relación existe entre el valor k de k-anonimato y el riesgo de vinculabilidad?",opts:["No existe relación entre ambos","El riesgo de vinculabilidad es de 1/k: cuanto mayor el k, menor la probabilidad de identificar al individuo correcto dentro del grupo","El riesgo de vinculabilidad es siempre 0 con k-anonimato","El riesgo de vinculabilidad aumenta con k"],c:1},
+  {q:"¿Qué mejora introduce l-diversity sobre el k-anonimato básico?",opts:["Exige que cada clase de equivalencia tenga al menos l valores distintos en el atributo sensible, evitando inferencia directa","Elimina por completo la necesidad de generalizar atributos","Sustituye el valor de k por un valor fijo de 10","Solo se aplica a datos numéricos, no categóricos"],c:0},
+  {q:"¿Qué exige adicionalmente t-closeness respecto a l-diversity?",opts:["Que el conjunto tenga como mínimo 100 registros","Que la distribución de valores del atributo sensible en cada clase sea similar a la distribución del conjunto total de datos","Que se elimine cualquier dato numérico","Que no se permitan más de 2 atributos sensibles"],c:1},
+  {q:"Según la tabla de riesgos del WP29, ¿qué técnicas NO presentan riesgo de singularización (marcadas con 'No')?",opts:["Seudonimización y adición de ruido","Agregación/k-anonimato y l-Diversity/t-Closeness","Privacidad diferencial únicamente","Hash/Tokens únicamente"],c:1},
+  {q:"En el caso del GIC de Massachusetts, ¿qué tres datos del censo electoral utilizó Latanya Sweeney para cruzarlos con el dataset hospitalario?",opts:["Nombre, teléfono y dirección de email","Código postal, fecha de nacimiento y sexo","Número de seguridad social y huella dactilar","Profesión, salario e ingresos anuales"],c:1},
+  {q:"Según el estudio de Latanya Sweeney sobre el censo de EE. UU., ¿qué porcentaje de la población era identificable únicamente con código postal completo, fecha de nacimiento (con año) y sexo?",opts:["18%","57%","87%","99%"],c:2},
+  {q:"¿Qué reveló el caso Netflix Prize sobre los datos de valoraciones 'anonimizadas'?",opts:["Que era imposible reidentificar a ningún usuario","Que con solo 6 valoraciones de un usuario se podía identificarlo cruzando con valoraciones públicas de IMDb","Que Netflix había incluido nombres reales por error","Que el problema solo afectaba a usuarios con pocas valoraciones"],c:1},
+  {q:"¿Qué tienen en común los casos de AOL, GIC/Massachusetts y Netflix Prize en su mecanismo de reidentificación?",opts:["Todos fueron resultado de un hackeo directo a los servidores","En los tres casos la reidentificación se logró por cruce de datos (inner-join) con una fuente externa","Todos involucraron robo físico de discos duros","Ninguno de los tres llegó a identificar realmente a un individuo"],c:1},
+  {q:"Respecto al riesgo de reidentificación aceptable, ¿cómo se diferencia el enfoque de la UE frente al de EE. UU.?",opts:["La UE acepta cualquier riesgo si hay consentimiento; EE. UU. nunca acepta riesgo","La UE busca un riesgo próximo a cero priorizando el derecho fundamental; EE. UU. busca un equilibrio (trade-off) entre utilidad del dato y riesgo, con umbrales más permisivos","Ambos marcos usan exactamente el mismo umbral numérico","EE. UU. tiene un marco único tipo RGPD, la UE tiene leyes fragmentadas"],c:1},
+  {q:"¿Cuántos de los 11 criterios AEPD deben cumplirse como mínimo para que una Evaluación de Impacto sea obligatoria?",opts:["Basta con 1 criterio","Se requieren 2 o más criterios","Se requieren todos los 11 criterios","No hay un número mínimo, es siempre obligatoria"],c:1},
+  {q:"¿Qué factores determinan si un tratamiento de datos es 'a gran escala' según los criterios de evaluación de impacto?",opts:["Solo el número de interesados afectados","Número de interesados, volumen y variedad de datos, duración del tratamiento, y extensión geográfica","Únicamente si la empresa tiene más de 250 empleados","Solo si se usa inteligencia artificial"],c:1},
+  {q:"En la metodología de una Evaluación de Impacto, ¿qué es el 'riesgo residual'?",opts:["El riesgo que existía antes de aplicar cualquier medida","El riesgo que permanece después de aplicar las medidas mitigadoras (técnicas, organizativas y jurídicas)","El riesgo que solo afecta a menores de edad","Un sinónimo de riesgo inherente"],c:1},
+  {q:"Si tras aplicar medidas mitigadoras en una EIP el riesgo residual sigue siendo 'muy alto', ¿qué se debe hacer?",opts:["Proceder con el tratamiento sin más trámites","Consultar a la autoridad de control competente o desistir del tratamiento","Aplicar automáticamente una multa preventiva","Ignorar el resultado si el negocio lo requiere"],c:1},
+  {q:"De los 4 principios para construir un data warehouse con menor riesgo, ¿qué propone la 'separación funcional'?",opts:["Separar los servidores físicos por país","Que el acceso a los datos se limite exclusivamente a las funciones para las que cada usuario está autorizado","Dividir el data warehouse en múltiples bases de datos idénticas","Separar los datos de clientes activos e inactivos"],c:1},
+  {q:"¿Por qué el manual advierte contra ser 'maximalista' al esperar anonimización tras eliminar identificadores directos e indirectos?",opts:["Porque eliminar identificadores siempre garantiza el 100% de anonimización","Porque la combinación de varios atributos aparentemente inocuos (edad, geolocalización, sexo, diagnóstico) puede seguir permitiendo la reidentificación","Porque la ley prohíbe eliminar identificadores directos","Porque solo los identificadores indirectos importan, nunca los directos"],c:1},
+  {q:"Según la guía de orientación de técnicas del tema, ¿cuándo es más apropiado usar 'agregación de datos' frente a otras técnicas?",opts:["Cuando se necesitan registros completamente individualizados","Cuando los datos agregados son suficientes para la utilidad del estudio y no se necesitan registros individualizados — útil para identificadores indirectos","Solo cuando hay menos de 5 registros en total","Nunca, es una técnica obsoleta"],c:1},
+  {q:"¿Cuál es la 'tensión fundamental' que resume todo el tema de técnicas de anonimización?",opts:["El coste económico de aplicar las técnicas es siempre más caro que una multa","Toda técnica de anonimización reduce la utilidad de los datos; hay que decidir qué utilidad se necesita conservar","No existe ninguna tensión, todas las técnicas son perfectas","La única tensión es el tiempo de procesamiento informático"],c:1},
+  {q:"¿Qué papel juega un 'tercero de confianza' en los procesos de anonimización parcial recomendados por el WP29?",opts:["Vender los datos a terceros sin restricción","Custodiar la correspondencia entre seudónimos e identificadores, facilitando la reidentificación solo si es necesario (común en investigación sanitaria)","Anular cualquier obligación legal de la empresa responsable","No tiene ningún papel relevante en este contexto"],c:1}
+];
+
+var quizReady=false, quizQs=[], userAns={}, evaluated=false;
+function initQuiz(){quizReady=true;generateQuiz();}
+function generateQuiz(){
+  quizQs=allQ.slice().sort(function(){return Math.random()-.5;}).slice(0,10);
+  userAns={};evaluated=false;buildQuiz();
+}
+function buildQuiz(){
+  var answered=Object.keys(userAns).length;
+  var pct=Math.round((answered/quizQs.length)*100);
+  var L=['1','2','3','4'];
+  var h='<div class="qz-head"><span class="qz-info">'+quizQs.length+' preguntas</span><div class="qz-bar"><div class="qz-fill" id="qfill" style="width:'+pct+'%"></div></div><span class="qz-info" id="qans">'+answered+'/'+quizQs.length+' respondidas</span></div>';
+  quizQs.forEach(function(q,qi){
+    var badge = q.tag ? '<span class="qz-badge">'+q.tag+'</span>' : '';
+    h+='<div class="qz-card"><div class="qz-num">Pregunta '+(qi+1)+badge+'</div><div class="qz-txt">'+q.q+'</div><div class="qz-opts">';
+    q.opts.forEach(function(o,oi){
+      var cls='qz-opt';
+      if(evaluated){if(oi===q.c&&userAns[qi]===oi)cls+=' ok';else if(oi===q.c)cls+=' show';else if(oi===userAns[qi])cls+=' bad';}
+      else if(userAns[qi]===oi)cls+=' sel';
+      var clk=evaluated?'':'onclick="pick('+qi+','+oi+')"';
+      h+='<div class="'+cls+'" '+clk+'><div class="opt-l">'+L[oi]+'</div><div class="opt-t">'+o+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  if(!evaluated){
+    h+='<div class="qz-acts"><button class="btn-p" onclick="evalQuiz()">Evaluar</button><button class="btn-s" onclick="generateQuiz()">Nueva ronda</button></div>';
+  } else {
+    var correct=0,fb='';
+    quizQs.forEach(function(q,qi){
+      var ok=userAns[qi]===q.c;if(ok)correct++;
+      fb+='<div class="fb-item '+(ok?'fb-ok':'fb-bad')+'"><div class="fb-q">'+(qi+1)+'. '+q.q+'</div>';
+      if(ok)fb+='<div class="fb-c">&#10003; Correcto: '+q.opts[q.c]+'</div>';
+      else fb+='<div class="fb-w">&#10007; Tu respuesta: '+(userAns[qi]!==undefined?q.opts[userAns[qi]]:'Sin respuesta')+'</div><div class="fb-corr">&#10003; Correcta: '+q.opts[q.c]+'</div>';
+      fb+='</div>';
+    });
+    var p=Math.round((correct/quizQs.length)*100);
+    var msg=p>=80?'¡Excelente! Dominas el Tema 10.':p>=60?'Bien, repasa los que fallaste con las flashcards.':'Vuelve al resumen y luego inténtalo de nuevo.';
+    h+='<div class="qz-result"><div class="res-score">'+correct+'/'+quizQs.length+'</div><div class="res-lbl">'+p+'% de aciertos</div><div class="res-msg">'+msg+'</div></div>'+fb+'<div class="qz-acts"><button class="btn-s" onclick="generateQuiz()">Nueva ronda &#8594;</button></div>';
+  }
+  document.getElementById('quiz-content').innerHTML=h;
+}
+function pick(qi,oi){
+  if(evaluated)return;
+  userAns[qi]=oi;
+  var cards=document.querySelectorAll('.qz-card');
+  var opts=cards[qi].querySelectorAll('.qz-opt');
+  opts.forEach(function(el,i){el.classList.remove('sel');if(i===oi)el.classList.add('sel');});
+  var answered=Object.keys(userAns).length;
+  var pct=Math.round((answered/quizQs.length)*100);
+  var f=document.getElementById('qfill');if(f)f.style.width=pct+'%';
+  var a=document.getElementById('qans');if(a)a.textContent=answered+'/'+quizQs.length+' respondidas';
+}
+function evalQuiz(){
+  if(Object.keys(userAns).length===0){alert('Marca al menos una respuesta.');return;}
+  evaluated=true;buildQuiz();
+}
+</script>
+
+</body>
+</html>
